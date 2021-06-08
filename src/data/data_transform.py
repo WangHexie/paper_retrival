@@ -1,3 +1,6 @@
+from typing import List
+
+
 def convert_keywords_to_string(keywords: list, replace_symbol=" "):
     if type(keywords) != list:
         return " "
@@ -16,7 +19,7 @@ def base_data_transformation(full_data_dataset, keywords_transform=False, **kwar
     return prfs_full_keywords
 
 
-def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False, **kwargs):
+def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False, **kwargs) -> List[str]:
     replace_key = "_" if keywords_transform else " "
     results = pub["keywords"].apply(lambda x: " ".join(i.replace(" ", replace_key) for i in x)) + pub["title"]
     if add_title:

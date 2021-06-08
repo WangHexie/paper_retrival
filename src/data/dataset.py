@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class Dataset:
-    base_path = "../../dataset"
+    base_path = "dataset"
 
     def _read_jsons(self, relative_path):
         path_to_json = os.path.join(self.base_path, relative_path)
