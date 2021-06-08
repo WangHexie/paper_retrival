@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+jupyterlab
+ogb
+pytorch-lightning
+pysparnn
+elasticsearch
+elasticsearch-dsl
