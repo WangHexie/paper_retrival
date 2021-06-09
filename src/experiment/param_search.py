@@ -5,9 +5,12 @@ from typing import List
 import yaml
 import numpy as np
 import copy
+from ..config import root_path
+from ..application.retrieve import Retrieve
+
 
 def read_yaml(name):
-    with open(os.path.join("config", name), "r") as f:
+    with open(os.path.join(root_path, "config", name), "r") as f:
         config = yaml.load(f)
     return config
 
@@ -59,6 +62,11 @@ def create_param_from_custom_base_numbers(number: List[int], config: dict or lis
 
 
 def create_param_from_config(config_name):
+    """
+    read yaml and
+    :param config_name:
+    :return:
+    """
     config = read_yaml(config_name)
     custom_base = flatten_config_and_calculate_base(config)
     num_of_runs = calculate_number_of_runs(config)
@@ -67,13 +75,29 @@ def create_param_from_config(config_name):
         yield create_param_from_custom_base_numbers(number_of_custom_base, copy.deepcopy(config))
 
 
+def save_results(text, config_name):
+    with open(os.path.join(root_path, "logs", config_name + ".txt"), "a") as f:
+        f.write(str(text))
+        f.write("/n|||/n")
+
+
+def retrieve_param_search(config_name):
+    for param in create_param_from_config(config_name):
+        print(param)
+        rt = Retrieve(**param)
+        result = rt.evaluate()
+        print(result)
+        rt.close()
+        save_results(result, config_name)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='param search')
     parser.add_argument('--config', type=str)
 
     args = parser.parse_args()
-    for i in create_param_from_config(args.config):
-        print(i)
+    retrieve_param_search(args.config)
+
     # print(read_yaml(args.config))
     # print(calculate_number_of_runs(read_yaml(args.config)))
     # print(flatten_config_and_calculate_base(read_yaml(args.config)))
