@@ -44,8 +44,8 @@ class Retrieve:
 
     def evaluate(self):
         prediction = self.retrieve()
-        return {"map": mean_average_precision(prediction, self.labels),
-                "acc_recall": accuracy_custom(prediction, self.labels)}
+        return {"map": mean_average_precision(prediction, self.labels["experts"].values),
+                "acc_recall": accuracy_custom(prediction, self.labels["experts"].values)}
 
     def close(self):
         self.retrieve_model.reset_database()
