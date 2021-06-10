@@ -2,11 +2,13 @@ import argparse
 import os
 from typing import List
 
+import elasticsearch
 import yaml
 import numpy as np
 import copy
 from ..config import root_path
 from ..application.retrieve import Retrieve
+from time import sleep
 
 
 def read_yaml(name):
@@ -78,16 +80,23 @@ def create_param_from_config(config_name):
 def save_results(text, config_name):
     with open(os.path.join(root_path, "logs", config_name + ".txt"), "a") as f:
         f.write(str(text))
-        f.write("/n|||/n")
+        f.write("\n|||\n")
 
 
 def retrieve_param_search(config_name):
     for param in create_param_from_config(config_name):
         print(param)
-        rt = Retrieve(**param)
-        result = rt.evaluate()
-        print(result)
+        save_results(param, config_name)
+
+        rt = Retrieve("", "", **param)
+        sleep(10)
+        try:
+            result = rt.evaluate()
+        except elasticsearch.exceptions.TransportError as e:
+            print(e.info)
         rt.close()
+
+        print(result)
         save_results(result, config_name)
 
 

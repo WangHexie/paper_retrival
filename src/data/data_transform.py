@@ -19,14 +19,14 @@ def base_data_transformation(full_data_dataset, keywords_transform=False, **kwar
     return prfs_full_keywords
 
 
-def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False, **kwargs) -> List[str]:
+def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False,abstract_length=200, **kwargs) -> List[str]:
     replace_key = "_" if keywords_transform else " "
     results = pub["keywords"].apply(lambda x: " ".join(i.replace(" ", replace_key) for i in x)) + pub["title"]
     if add_title:
         results += pub["title"]
 
     if add_abstract:
-        results += pub["abstract"]
+        results += pub["abstract"].apply(lambda x: " ".join(x.split(" ")[:abstract_length]))
 
     return results
 

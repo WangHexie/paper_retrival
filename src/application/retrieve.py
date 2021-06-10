@@ -53,5 +53,5 @@ class Retrieve:
 
 if __name__ == '__main__':
     r = Retrieve("", "", "bm25")
-    print(r.evaluate())
+    # print(r.evaluate())
     r.close()

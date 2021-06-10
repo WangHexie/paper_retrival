@@ -79,7 +79,7 @@ class BM25(BaseRetrieval):
         return result
 
     @staticmethod
-    def multi_search(es, index_name, query_texts: list, k=100, chunk=100):
+    def multi_search(es, index_name, query_texts: list, k=100, chunk=150):
         results = []
 
         for epoch in tqdm(range(math.ceil(len(query_texts) / chunk))):
@@ -125,6 +125,11 @@ class BM25(BaseRetrieval):
 
     def save_to_database(self):
         self.parallel_set_up_database(self.es, self.document, self.index, self.index_name)
+        # self.es.indices.put_settings({
+        #     self.index_name: {
+        #         "max_clause_count": 2
+        #     }
+        # })
         return self
 
     def reset_database(self):
@@ -147,5 +152,5 @@ class TFIDFRetrieval(BaseRetrieval):
 
 
 if __name__ == '__main__':
-    # print(BM25((["dafasdfa"], ["fdasfa "])).reset_database().save_to_database().retrieve_data(["da"]))
-    print(TFIDFRetrieval((["dafasdfa"], ["fdasfa "])).retrieve_data(["da"]))
+    print(BM25((["dafasdfa"], ["fdasfa "])).reset_database())
+    # print(TFIDFRetrieval((["dafasdfa"], ["fdasfa "])).retrieve_data(["da"]))

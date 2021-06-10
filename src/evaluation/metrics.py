@@ -248,7 +248,7 @@ def accuracy_custom(prediction, label):
             }
     for i in range(len(prediction)):
         num_of_intersection = len(set(prediction[i]).intersection(set(label[i])))
-        result["acc"].append(num_of_intersection/len(prediction[i]))
+        result["acc"].append(num_of_intersection/(len(prediction[i])+1))
         result["recall"].append(num_of_intersection/len(label[i]))
     result["acc"] = sum(result["acc"])/len(result["acc"])
     result["recall"] = sum(result["recall"])/len(result["recall"])
