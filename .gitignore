@@ -44,7 +44,6 @@ basic_model/classifiers/catboost_info/
 *.hdf5
 *.zip
 *.7z
-logs/
 *.wav
 dask-worker-space/
 feature_definition*
