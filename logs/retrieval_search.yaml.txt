@@ -1,64 +1,64 @@
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': True, 'add_title': True}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.04367355305469341, 'acc_recall': {'acc': 0.04537752525252706, 'recall': 0.0850444367748274}}
+{'map': 0.04048403449896901, 'acc_recall': {'acc': 0.04179671717171834, 'recall': 0.07956807860396507}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': True, 'add_title': True}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.014268017576420317, 'acc_recall': {'acc': 0.020369949494949274, 'recall': 0.036830945453685766}}
+{'map': 0.014166176364418458, 'acc_recall': {'acc': 0.01993813131313106, 'recall': 0.03664309014572764}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.0759051031207718, 'acc_recall': {'acc': 0.08773358585858351, 'recall': 0.1502578467804996}}
+{'map': 0.07924492122671647, 'acc_recall': {'acc': 0.09136111111110824, 'recall': 0.1565873129955428}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': False, 'add_title': True}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.04281774230226942, 'acc_recall': {'acc': 0.04834217171717357, 'recall': 0.08547349873398617}}
+{'map': 0.05450956053867636, 'acc_recall': {'acc': 0.061184343434346825, 'recall': 0.10670836248819873}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': True, 'add_title': False}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.04048403449896901, 'acc_recall': {'acc': 0.04179671717171834, 'recall': 0.07956807860396507}}
+{'map': 0.035516263345885334, 'acc_recall': {'acc': 0.03612626262626249, 'recall': 0.0691345113994209}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': True, 'add_title': False}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.01416621985006341, 'acc_recall': {'acc': 0.01993813131313106, 'recall': 0.03664309014572764}}
+{'map': 0.013577765492325623, 'acc_recall': {'acc': 0.018894781144781124, 'recall': 0.035111503784223466}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': False}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.0792449279384011, 'acc_recall': {'acc': 0.09136111111110824, 'recall': 0.1565873129955428}}
+{'map': 0.06515112886474306, 'acc_recall': {'acc': 0.07090470928939353, 'recall': 0.12502945747672667}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': False, 'add_title': False}, 'retrieval_kwargs': {'k': 23}}
 |||
-{'map': 0.0545097511856143, 'acc_recall': {'acc': 0.061184343434346825, 'recall': 0.10670814642381155}}
+{'map': 0.057214727169767034, 'acc_recall': {'acc': 0.0613893631640514, 'recall': 0.10815059561890208}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': True, 'add_title': True}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.048260389387377596, 'acc_recall': {'acc': 0.020839183918394365, 'recall': 0.14657823708902154}}
+{'map': 0.04470385378008036, 'acc_recall': {'acc': 0.019295829582960337, 'recall': 0.13761987052681648}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': True, 'add_title': True}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.015959206247328307, 'acc_recall': {'acc': 0.009603360336033285, 'recall': 0.065236817099025}}
+{'map': 0.015840401950491773, 'acc_recall': {'acc': 0.00940624062406207, 'recall': 0.06448068356879454}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.08642935262644469, 'acc_recall': {'acc': 0.04020882088208877, 'recall': 0.2511101487411414}}
+{'map': 0.09024384197409653, 'acc_recall': {'acc': 0.04174197419742023, 'recall': 0.2603495425622671}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': False, 'add_title': True}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.04717039868290504, 'acc_recall': {'acc': 0.021532029112004664, 'recall': 0.13992310177706105}}
+{'map': 0.0605758318575674, 'acc_recall': {'acc': 0.027400176200687413, 'recall': 0.17605013592697077}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': True, 'add_title': False}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.044703812814916095, 'acc_recall': {'acc': 0.019295829582960337, 'recall': 0.13761987052681648}}
+{'map': 0.03918420404167563, 'acc_recall': {'acc': 0.016808167702017124, 'recall': 0.12199556048241968}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': True, 'add_title': False}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.015840205383734058, 'acc_recall': {'acc': 0.009405940594059067, 'recall': 0.0644817904164923}}
+{'map': 0.015162230821327467, 'acc_recall': {'acc': 0.008857393770796857, 'recall': 0.06145848979202966}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': False}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.09024386359995844, 'acc_recall': {'acc': 0.04174197419742023, 'recall': 0.2603495425622671}}
+{'map': 0.07371982589025192, 'acc_recall': {'acc': 0.032445529637814205, 'recall': 0.209566346448275}}
 |||
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': True, 'add_abstract': False, 'add_title': False}, 'retrieval_kwargs': {'k': 100}}
 |||
-{'map': 0.06056793588057363, 'acc_recall': {'acc': 0.027398676050672408, 'recall': 0.17603750540090263}}
+{'map': 0.06349653003187504, 'acc_recall': {'acc': 0.028261290319093146, 'recall': 0.17685418758788196}}
 |||

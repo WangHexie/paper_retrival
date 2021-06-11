@@ -1,3 +1,6 @@
+import os
+import pickle
+from pathlib import Path
 from typing import List, Tuple
 from elasticsearch import Elasticsearch
 from tqdm import tqdm
@@ -6,6 +9,9 @@ import math
 from elasticsearch_dsl import MultiSearch, Search
 import pysparnn.cluster_index as ci
 from sklearn import feature_extraction
+import numpy as np
+import hnswlib
+from ..config import root_path
 
 
 class BaseRetrieval:
@@ -147,6 +153,68 @@ class TFIDFRetrieval(BaseRetrieval):
     def retrieve_data(self, query):
         return self.retrieval_model.search_data(query, k=self.k)
 
+    def reset_database(self):
+        return self
+
+
+class FastEmbeddingRetrievalModel(BaseRetrieval):
+    def __init__(self, data_source: Tuple[np.array, List[str]], k=100, **kwargs):
+        super().__init__(data_source)
+        self.k = k
+        self.embedding = self.document
+
+        self.index_path = str(Path(root_path, "cache", "index.bin"))
+
+        self._index_init()
+
+        # self._load_index()
+
+    # def _save_embedding(self):
+    #     embeddings = self.batch_convert.batch_convert(self.documents.get_paragraph())
+    #
+    #     with open(self.embedding_path, "wb") as f:
+    #         pickle.dump(embeddings, f)
+    #
+    # def load_embedding(self):
+    #     with open(self.embedding_path, "rb") as f:
+    #         self.embedding = pickle.load(f)
+
+    def _index_init(self):
+        dim = len(self.embedding[0])
+        num_elements = 5000000
+
+        batch_size = 1000
+
+        self.p = hnswlib.Index(space='cosine', dim=dim)  # possible options are l2, cosine or ip
+
+        self.p.init_index(max_elements=num_elements, ef_construction=200, M=32)
+        indexes = self.index
+
+        length = math.ceil(len(self.embedding) / batch_size)
+        for i in tqdm(range(length)):
+            self.p.add_items(self.embedding[:batch_size], indexes[i * batch_size:(i + 1) * batch_size])
+            del self.embedding[:batch_size]
+
+        # Controlling the recall by setting ef:
+        self.p.set_ef(50)  # ef should always be > k
+
+        del self.embedding
+        self.p.save_index(self.index_path)
+
+    # def _load_index(self):
+    #     self.p = hnswlib.Index(space='cosine',
+    #                            dim=768)  # the space can be changed - keeps the data, alters the distance function.
+    #
+    #     print("\nLoading index from 'first_half.bin'\n")
+    #
+    #     # Increase the total capacity (max_elements), so that it will handle the new data
+    #     self.p.load_index(self.index_path)
+
+    def retrieve_data(self, query: np.array):
+        labels, distances = self.p.knn_query(query, k=self.k)
+
+        return labels
+        
     def reset_database(self):
         return self
 

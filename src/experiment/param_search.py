@@ -7,7 +7,7 @@ import yaml
 import numpy as np
 import copy
 from ..config import root_path
-from ..application.retrieve import Retrieve
+from ..application.retrieve import Retrieve, EmbeddingRetrieve
 from time import sleep
 
 
@@ -83,13 +83,15 @@ def save_results(text, config_name):
         f.write("\n|||\n")
 
 
-def retrieve_param_search(config_name):
+def retrieve_param_search(config_name, mode=0):
     for param in create_param_from_config(config_name):
         print(param)
         save_results(param, config_name)
 
-        rt = Retrieve("", "", **param)
-        sleep(10)
+        if mode == 0:
+            rt = Retrieve("", "", **param)
+        elif mode == 1:
+            rt = EmbeddingRetrieve(**param)
         try:
             result = rt.evaluate()
         except elasticsearch.exceptions.TransportError as e:
@@ -103,9 +105,10 @@ def retrieve_param_search(config_name):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='param search')
     parser.add_argument('--config', type=str)
+    parser.add_argument('--mode', type=int, default=0)
 
     args = parser.parse_args()
-    retrieve_param_search(args.config)
+    retrieve_param_search(args.config, mode=args.mode)
 
     # print(read_yaml(args.config))
     # print(calculate_number_of_runs(read_yaml(args.config)))

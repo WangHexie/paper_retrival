@@ -1,0 +1,37 @@
+transformation_kwargs:
+  log_transform:
+    - False
+    - True
+  weight:
+    -
+      - 1
+      - 0
+      - 0
+    -
+      - 0
+      - 1
+      - 0
+    -
+      - 0
+      - 0
+      - 1
+    -
+      - 1
+      - 1
+      - 1
+    -
+      - 1
+      - 1
+      - 0
+    -
+      - 1
+      - 0
+      - 1
+    -
+      - 0
+      - 1
+      - 1
+retrieval_kwargs:
+  k:
+    - 23
+    - 100
