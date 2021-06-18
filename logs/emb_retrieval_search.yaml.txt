@@ -1,0 +1,112 @@
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 0, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.011973108970622193, 'acc_recall': {'acc': 0.021029040404040075, 'recall': 0.031459433524016533}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 0, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.013014108634324884, 'acc_recall': {'acc': 0.022388888888888413, 'recall': 0.034748319651875095}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [0, 1, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.01321833697431214, 'acc_recall': {'acc': 0.02844570707070565, 'recall': 0.038967555081739984}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [0, 1, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.013722826210051997, 'acc_recall': {'acc': 0.029148989898988332, 'recall': 0.04089239498984371}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [0, 0, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.015280286189770237, 'acc_recall': {'acc': 0.031023989898988084, 'recall': 0.04277530184080889}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [0, 0, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.01811587889820847, 'acc_recall': {'acc': 0.0357638888888887, 'recall': 0.050363997481046315}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 1, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.018801977346616497, 'acc_recall': {'acc': 0.03566414141414114, 'recall': 0.05051576968679822}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 1, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.020751499450650357, 'acc_recall': {'acc': 0.03868560606060642, 'recall': 0.05654182064449543}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 1, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.014294763686630156, 'acc_recall': {'acc': 0.02769444444444306, 'recall': 0.03912719818110467}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 1, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.015187951779192799, 'acc_recall': {'acc': 0.02908080808080642, 'recall': 0.04197308470935286}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 0, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.017024509009791994, 'acc_recall': {'acc': 0.03080176767676592, 'recall': 0.044675381160265454}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 0, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.019450582980459135, 'acc_recall': {'acc': 0.034624999999999344, 'recall': 0.05195953277231851}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [0, 1, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.018419262537617217, 'acc_recall': {'acc': 0.036650252525252586, 'recall': 0.05130513253985042}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [0, 1, 1]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.02036421596166303, 'acc_recall': {'acc': 0.03992676767676813, 'recall': 0.05709045574826125}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 0, 0]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.013974591770334971, 'acc_recall': {'acc': 0.011478547854785384, 'recall': 0.06596133024260054}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 0, 0]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.015465860440076152, 'acc_recall': {'acc': 0.012646564656465657, 'recall': 0.0751311264147494}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [0, 1, 0]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.015990169870255793, 'acc_recall': {'acc': 0.01599819981998257, 'recall': 0.08483481470461611}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [0, 1, 0]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.01684209908648899, 'acc_recall': {'acc': 0.016899189918993043, 'recall': 0.09193396683669319}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [0, 0, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.018360706902527116, 'acc_recall': {'acc': 0.016904290429044032, 'recall': 0.08995006418291397}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [0, 0, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.022011906639360656, 'acc_recall': {'acc': 0.019779777977799937, 'recall': 0.10831313578228581}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 1, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.022278215227078596, 'acc_recall': {'acc': 0.019324932493251512, 'recall': 0.10559225614225314}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 1, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.025119675596158013, 'acc_recall': {'acc': 0.021668466846687405, 'recall': 0.12153086970418053}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 1, 0]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.016870897666166083, 'acc_recall': {'acc': 0.015258025802580672, 'recall': 0.08292024456826703}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 1, 0]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.018235178054759795, 'acc_recall': {'acc': 0.016463246324633442, 'recall': 0.09215180786437392}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 0, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.02007983146962628, 'acc_recall': {'acc': 0.016751875187519707, 'recall': 0.09334480199742552}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [1, 0, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.023405408443120893, 'acc_recall': {'acc': 0.019323132313233318, 'recall': 0.11039866777816269}}
+|||
+{'transformation_kwargs': {'log_transform': False, 'weight': [0, 1, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.022033811494931037, 'acc_recall': {'acc': 0.01983198319832206, 'recall': 0.10675839221670143}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'weight': [0, 1, 1]}, 'retrieval_kwargs': {'k': 100}}
+|||
+{'map': 0.024911058022216628, 'acc_recall': {'acc': 0.022321332133216396, 'recall': 0.12320994022817203}}
+|||

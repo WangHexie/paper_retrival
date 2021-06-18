@@ -3,6 +3,7 @@ from __future__ import absolute_import, division
 import numpy as np
 
 import warnings
+
 #
 # __all__ = [
 #     'mean_average_precision',
@@ -242,14 +243,20 @@ def ndcg_at(predictions, labels, k=10, assume_unique=True):
 
 def accuracy_custom(prediction, label):
     assert len(prediction) == len(label)
-    result= {
-        "acc":[],
-        "recall":[],
-            }
+    result = {
+        "acc": [],
+        "recall": [],
+        "f1": []
+    }
     for i in range(len(prediction)):
         num_of_intersection = len(set(prediction[i]).intersection(set(label[i])))
-        result["acc"].append(num_of_intersection/(len(prediction[i])+1))
-        result["recall"].append(num_of_intersection/len(label[i]))
-    result["acc"] = sum(result["acc"])/len(result["acc"])
-    result["recall"] = sum(result["recall"])/len(result["recall"])
+        acc = num_of_intersection / (len(prediction[i]) + 1)
+        recall = num_of_intersection / len(label[i])
+        f1 = 2 * acc * recall / (acc + recall)
+        result["acc"].append(acc)
+        result["recall"].append(recall)
+        result["f1"].append(f1)
+    result["acc"] = sum(result["acc"]) / len(result["acc"])
+    result["recall"] = sum(result["recall"]) / len(result["recall"])
+    result["f1"] = sum(result["f1"]) / len(result["f1"])
     return result

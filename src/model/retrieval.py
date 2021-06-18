@@ -188,12 +188,12 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
         self.p = hnswlib.Index(space='cosine', dim=dim)  # possible options are l2, cosine or ip
 
         self.p.init_index(max_elements=num_elements, ef_construction=200, M=32)
-        indexes = self.index
+        indexes = list(range(len(self.index)))
 
         length = math.ceil(len(self.embedding) / batch_size)
         for i in tqdm(range(length)):
-            self.p.add_items(self.embedding[:batch_size], indexes[i * batch_size:(i + 1) * batch_size])
-            del self.embedding[:batch_size]
+            self.p.add_items(self.embedding[i * batch_size:(i + 1) * batch_size], indexes[i * batch_size:(i + 1) * batch_size])
+            # del self.embedding[:batch_size]
 
         # Controlling the recall by setting ef:
         self.p.set_ef(50)  # ef should always be > k
@@ -213,7 +213,7 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
     def retrieve_data(self, query: np.array):
         labels, distances = self.p.knn_query(query, k=self.k)
 
-        return labels
+        return [self.index[i] for i in labels]
         
     def reset_database(self):
         return self

@@ -94,8 +94,9 @@ class EmbeddingRetrieve:
         a_emb = PersistEmbeddingModel(self.cache_names["abstract"],
                                       {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(abstract)
 
-        p_emb = PersistEmbeddingModel(self.cache_names["prfs"],
-                                      {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(prfs)
+        p_emb = PersistEmbeddingModel(
+            self.cache_names["prfs"] + "logs_transform_" + str(self.transformation_kwargs["log_transform"]),
+            {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(prfs)
 
         self.pubs_embedding = paper_embedding_transformation(k_emb, t_emb, a_emb, **self.transformation_kwargs)
         self.retrieve_model = FastEmbeddingRetrievalModel((p_emb, self.base_data["id"]), **self.retrieval_kwargs)

@@ -7,7 +7,7 @@ def convert_keywords_to_string(keywords: list, replace_symbol=" ", log_transform
         return " "
 
     if log_transform:
-        transform_func = lambda x: math.log(x) + 1
+        transform_func = lambda x: int(math.log(abs(x)+1) + 1)
     else:
         transform_func = lambda x: x
 
