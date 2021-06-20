@@ -9,7 +9,13 @@ import copy
 from ..config import root_path
 from ..application.retrieve import Retrieve, EmbeddingRetrieve
 from time import sleep
-
+"""
+该参数搜索先将字典展平后计算list个数，只计算作为字典value的list而不深入计算list中的list。
+统计完list个数和长度后，将长度相乘得到需要搜索的参数组合数量。
+将list长度按出现顺序排列，将其作为进位标识符，表示每个位都具有不同的base，进位不同。
+搜索所有参数只要把参数组合数量转换为自定义进制的数即可。该转换过程从零开始依次加一至所需的的参数数量值，依次进位，每个位即是改取的参数的位置。所以能保证搜索到所有参数。
+将展平后的list与原始字典对应则直接使用self-called（刚编的名字） 函数，依次将参数传入对应。
+"""
 
 def read_yaml(name):
     with open(os.path.join(root_path, "config", name), "r") as f:

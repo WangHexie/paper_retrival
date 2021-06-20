@@ -1,0 +1,22 @@
+ retrieval_method:
+   - "bm25"
+ transformation_kwargs:
+   keywords_transform:
+     - False
+   add_abstract:
+     - False
+   add_title:
+     - True
+ retrieval_kwargs:
+   k:
+     - 23
+     - 100
+ refine_retrieved_result:
+   - "link"
+ refine_kwargs:
+   top_user:
+     - 10
+     - 20
+     - 40
+   user_num:
+     - 5

@@ -4,6 +4,7 @@ from ..data.dataset import Dataset
 from ..model.retrieval import BM25, TFIDFRetrieval, FastEmbeddingRetrievalModel
 from ..evaluation import accuracy_custom, mean_average_precision
 from ..model.embedding import PersistEmbeddingModel
+from ..model.graph import Graph
 
 
 class Retrieve:
@@ -11,16 +12,23 @@ class Retrieve:
                  dataset_name: str,
                  transformation: str,
                  retrieval_method: str,
+                 refine_retrieved_result: bool or str = False,
                  transformation_kwargs: dict = None,
-                 retrieval_kwargs: dict = None):
+                 retrieval_kwargs: dict = None,
+                 refine_kwargs: dict = None,
+                 ):
         """
 
         :param dataset_name:
         :param transformation:
+        :param refine_retrieved_result: [False, "link"]
         :param retrieval_method: [bm25, tfidf, embedding]
         :param transformation_kwargs:
         :param retrieval_kwargs:
+        :param refine_kwargs:
         """
+        self.refine_kwargs = refine_kwargs
+        self.refine_retrieved_result = refine_retrieved_result
         self.base_data = Dataset().read_base_dataset()
 
         self.pubs, self.labels = Dataset().read_train_dataset()
@@ -41,14 +49,22 @@ class Retrieve:
             self.retrieve_model = TFIDFRetrieval
         self.retrieve_model = self.retrieve_model(data_source, **self.retrieval_kwargs)
 
+        if self.refine_retrieved_result == "link":
+            self.refinement_method = Graph(**self.refine_kwargs)
+            self.refinement_method.fit(self.base_data)
+
     def retrieve(self):
         query = paper_data_transformation(self.pubs, **self.transformation_kwargs)
-        return self.retrieve_model.retrieve_data(query)
+        if self.refine_retrieved_result is not False:
+            return self.refinement_method.retrieve(self.retrieve_model.retrieve_data(query))
+        else:
+            return self.retrieve_model.retrieve_data(query)
 
     def evaluate(self):
         prediction = self.retrieve()
         return {"map": mean_average_precision(prediction, self.labels["experts"].values),
-                "acc_recall": accuracy_custom(prediction, self.labels["experts"].values)}
+                "acc_recall": accuracy_custom(prediction, self.labels["experts"].values),
+                "length": sum([len(i) for i in prediction]) / len(prediction)}
 
     def close(self):
         self.retrieve_model.reset_database()

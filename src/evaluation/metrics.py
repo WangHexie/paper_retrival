@@ -250,9 +250,9 @@ def accuracy_custom(prediction, label):
     }
     for i in range(len(prediction)):
         num_of_intersection = len(set(prediction[i]).intersection(set(label[i])))
-        acc = num_of_intersection / (len(prediction[i]) + 1)
+        acc = num_of_intersection / len(prediction[i]) if len(prediction[i]) != 0 else 0
         recall = num_of_intersection / len(label[i])
-        f1 = 2 * acc * recall / (acc + recall)
+        f1 = 2 * acc * recall / (acc + recall) if acc != 0 or recall != 0 else 0
         result["acc"].append(acc)
         result["recall"].append(recall)
         result["f1"].append(f1)
