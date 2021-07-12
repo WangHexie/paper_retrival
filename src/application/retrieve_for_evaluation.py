@@ -60,11 +60,14 @@ class Retrieve:
         else:
             return self.retrieve_model.retrieve_data(query)
 
-    def evaluate(self):
-        prediction = self.retrieve()
+    def evaluate_by_prediction(self, prediction):
         return {"map": mean_average_precision(prediction, self.labels["experts"].values),
                 "acc_recall": accuracy_custom(prediction, self.labels["experts"].values),
                 "length": sum([len(i) for i in prediction]) / len(prediction)}
+
+    def evaluate(self):
+        prediction = self.retrieve()
+        return self.evaluate_by_prediction(prediction)
 
     def close(self):
         self.retrieve_model.reset_database()

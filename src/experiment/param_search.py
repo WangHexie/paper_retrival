@@ -7,7 +7,7 @@ import yaml
 import numpy as np
 import copy
 from ..config import root_path
-from ..application.retrieve import Retrieve, EmbeddingRetrieve
+from ..application.retrieve_for_evaluation import Retrieve, EmbeddingRetrieve
 from time import sleep
 """
 该参数搜索先将字典展平后计算list个数，只计算作为字典value的list而不深入计算list中的list。

@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+from sklearn.model_selection import train_test_split
+
 from ..config import root_path
 
 
@@ -24,6 +26,10 @@ class Dataset:
     def read_valid_dataset(self):
         path = "valid"
         return pd.read_json(os.path.join(self.base_path, path, "publications.json"))
+
+
+    def get_train_test_split(self):
+        return train_test_split(self.read_train_dataset(), random_state=8888)
 
 
 if __name__ == '__main__':
