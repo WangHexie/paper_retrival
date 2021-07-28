@@ -20,12 +20,12 @@ class Dataset:
 
     def read_train_dataset(self):
         path = "train"
-        return pd.read_json(os.path.join(self.base_path, path, "publications.json")), pd.read_json(
-            os.path.join(self.base_path, path, "results.json"))
+        return pd.read_json(os.path.join(self.base_path, path, "paper_attributes.json")), pd.read_json(
+            os.path.join(self.base_path, path, "train_data_1.json"))
 
     def read_valid_dataset(self):
         path = "valid"
-        return pd.read_json(os.path.join(self.base_path, path, "publications.json"))
+        return pd.read_json(os.path.join(self.base_path, path, "valid_data.json"))
 
 
     def get_train_test_split(self):

@@ -16,6 +16,7 @@ class Retrieve:
                  transformation_kwargs: dict = None,
                  retrieval_kwargs: dict = None,
                  refine_kwargs: dict = None,
+                 prediction=False
                  ):
         """
 
@@ -31,16 +32,20 @@ class Retrieve:
         self.refine_retrieved_result = refine_retrieved_result
         self.base_data = Dataset().read_base_dataset()
 
-        self.pubs, self.labels = Dataset().read_train_dataset()
+
+        if prediction:
+            self.pubs = Dataset().read_valid_dataset()
+        else:
+            self.pubs, self.labels = Dataset().read_train_dataset()
 
         self.retrieval_method = retrieval_method
 
         self.transformation_kwargs = transformation_kwargs if transformation_kwargs is not None else {}
         self.retrieval_kwargs = retrieval_kwargs if retrieval_kwargs is not None else {}
 
-        self.setup()
+        self._setup()
 
-    def setup(self):
+    def _setup(self):
         data_source = (base_data_transformation(self.base_data, **self.transformation_kwargs), self.base_data["id"])
 
         if self.retrieval_method == "bm25":

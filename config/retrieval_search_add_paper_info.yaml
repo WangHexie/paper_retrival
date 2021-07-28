@@ -1,0 +1,19 @@
+ retrieval_method:
+   - "bm25"
+ transformation_kwargs:
+   keywords_transform:
+     - False
+   add_abstract:
+     - False
+   add_title:
+     - True
+   add_paper_keywords:
+     - True
+     - False
+   add_prsf_interest:
+     - True
+     - False
+ retrieval_kwargs:
+   k:
+     - 50
+#     - 100

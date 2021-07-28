@@ -1,0 +1,20 @@
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 15}}
+|||
+{'map': 0.07696263666834714, 'acc_recall': {'acc': 0.12255959595958527, 'recall': 0.1376069071487123, 'f1': 0.10180614973130049}, 'length': 15.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 10}}
+|||
+{'map': 0.07091555318827715, 'acc_recall': {'acc': 0.145121212121208, 'recall': 0.1142817698176461, 'f1': 0.10070425276780308}, 'length': 10.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 5}}
+|||
+{'map': 0.05891168006533976, 'acc_recall': {'acc': 0.1879393939393666, 'recall': 0.08000018852222598, 'f1': 0.090759928102285}, 'length': 5.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 30}}
+|||
+{'map': 0.08553629648244306, 'acc_recall': {'acc': 0.08855858585857013, 'recall': 0.18436680748273918, 'f1': 0.09527792475781142}, 'length': 30.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'map': 0.0824632784843639, 'acc_recall': {'acc': 0.10068906455862571, 'recall': 0.16535667416136238, 'f1': 0.09883127675584245}, 'length': 23.0}
+|||

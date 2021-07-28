@@ -1,0 +1,26 @@
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'map': 0.09060206660313666, 'acc_recall': {'acc': 0.06816303030301478, 'recall': 0.22389696843982448, 'f1': 0.08543586041922466}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': False, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'map': 0.08845698281980799, 'acc_recall': {'acc': 0.06676060606059118, 'recall': 0.2190558511224479, 'f1': 0.08359761267655363}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': False}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'map': 0.09060208060916561, 'acc_recall': {'acc': 0.06816303030301478, 'recall': 0.22389696843982448, 'f1': 0.08543586041922466}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': False, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'map': 0.08845586295684571, 'acc_recall': {'acc': 0.06676060606059118, 'recall': 0.2190558511224479, 'f1': 0.08359761267655363}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': False}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'map': 0.04222441843073721, 'acc_recall': {'acc': 0.03694666666665941, 'recall': 0.11519102708128491, 'f1': 0.04531758855479413}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': False, 'add_prsf_interest': False}, 'retrieval_kwargs': {'k': 50}}
+|||
+{'map': 0.08480391959327856, 'acc_recall': {'acc': 0.06482969696968274, 'recall': 0.21191817699190366, 'f1': 0.08099003690320601}, 'length': 50.0}
+|||

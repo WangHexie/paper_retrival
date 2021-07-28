@@ -1,3 +1,4 @@
+import itertools
 import os
 import pickle
 from pathlib import Path
@@ -72,8 +73,10 @@ class TfidfAnnSearch(SentenceSearch):
 
 
 class BM25(BaseRetrieval):
-    def __init__(self, data_source: Tuple[List[str], List[str]], index_name="pub", k=100, save=True, **kwargs):
+    def __init__(self, data_source: Tuple[List[str], List[str]], index_name="pub", k=100, save=True, retrieve_by_score=False, temp_k=150, **kwargs):
         super().__init__(data_source)
+        self.temp_k = temp_k
+        self.retrieve_by_score = retrieve_by_score
         self.es = Elasticsearch(timeout=18000)
         self.index_name = index_name
         self.k = k
@@ -81,11 +84,22 @@ class BM25(BaseRetrieval):
             self.save_to_database()
 
     def retrieve_data(self, query: List[str]):
-        result = self.multi_search(self.es, self.index_name, query, self.k)
+
+        if self.retrieve_by_score:
+            result = self.multi_search(self.es, self.index_name, query, self.temp_k, add_score=True) # temp_k :make sure we have high recall, we can higher this later
+            quantile = 1 - (self.k / self.temp_k)
+            to_full_score = list(map(lambda x: x[-1], itertools.chain.from_iterable(result)))
+            threshold = np.quantile(to_full_score, quantile)
+
+            result = [list(map(lambda x:x[0], list(filter(lambda x:x[-1] > threshold, recalled_result )))) for recalled_result in result]
+
+        else:
+            result = self.multi_search(self.es, self.index_name, query, self.k)
+
         return result
 
     @staticmethod
-    def multi_search(es, index_name, query_texts: list, k=100, chunk=150):
+    def multi_search(es, index_name, query_texts: list, k=100, chunk=150, add_score=False):
         results = []
 
         for epoch in tqdm(range(math.ceil(len(query_texts) / chunk))):
@@ -101,7 +115,10 @@ class BM25(BaseRetrieval):
                 ms = ms.add(s)
             responses = ms.execute()
             for response in responses:
-                results.append([hit.meta["id"] for hit in response.hits])
+                if add_score:
+                    results.append([[hit.meta["id"], hit.meta["score"]] for hit in response.hits])
+                else:
+                    results.append([hit.meta["id"] for hit in response.hits])
             del responses
         return results
 
@@ -217,6 +234,17 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
         
     def reset_database(self):
         return self
+
+
+class BiEncoder:
+    def __init__(self):
+        pass
+
+    def train(self):
+        pass
+
+    def predict(self):
+        pass
 
 
 if __name__ == '__main__':

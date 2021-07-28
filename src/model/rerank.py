@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 import math
-from sentence_transformers import LoggingHandler, util
+from sentence_transformers import LoggingHandler, util, SentenceTransformer
 from sentence_transformers.cross_encoder import CrossEncoder
 from sentence_transformers.cross_encoder.evaluation import CEBinaryClassificationEvaluator
 from sentence_transformers import InputExample
@@ -61,12 +61,23 @@ class BertRerank:
 
 
 class BertRankSE:
-    def __init__(self, batch_size=16, num_epochs=1,model_save_path=os.path.join(root_path, "models"), max_length=512):
+    def __init__(self, batch_size=8, num_epochs=1, model_save_path=os.path.join(root_path, "models"), max_length=512, initial_load=True):
         self.max_length = max_length
         self.model_save_path = model_save_path
         self.num_epochs = num_epochs
         self.batch_size = batch_size
-        self.model = CrossEncoder('distilroberta-base', num_labels=1, device="cuda:1", max_length=max_length)
+        model_name = 'allenai/scibert_scivocab_uncased'
+        if initial_load:
+            try:
+                self.model = CrossEncoder(os.path.join(self.model_save_path, model_name), num_labels=1, device="cuda:1", max_length=max_length)
+            except:
+                self.model = CrossEncoder(model_name, num_labels=1, device="cuda:1", max_length=max_length)
+            self.model.save(os.path.join(self.model_save_path, model_name))
+
+    def load_model(self):
+        self.model = CrossEncoder(os.path.join(root_path, "models", "manual_save"), device="cuda:1", max_length=self.max_length)
+
+        return self
 
     @staticmethod
     def _reformat_example(paper_text, user_text, labels):
@@ -96,9 +107,22 @@ class BertRankSE:
         return self
 
     def predict(self, paper_text, user_text):
-        return self.model.predict(list(zip(paper_text, user_text)))
+        return self.model.predict(list(zip(paper_text, user_text)), show_progress_bar=True)
+
+    @staticmethod
+    def convert_prediction_to_dictionary(paper_id, user_id, prediction, threshold=0.3):
+        assert len(paper_id) == len(user_id) and len(paper_id) == len(prediction)
+        result = dict([(i, []) for i in set(paper_id)])
+        for paper, user, score in zip(paper_id, user_id, prediction):
+            if score > threshold:
+                result[paper].append(user)
+
+        return result
+
+
 
     # def evaluate(self, paper_text, user_text, y):
     #     return self.model.eval_model(self._reformat_example(paper_text, user_text, y))
 if __name__ == '__main__':
-    BertRankSE().train(["s sd"]*96, ["dd"]*96, [1]*96)
+    a = BertRankSE().load_model().predict(["fdasfa "*100]*1000, ["dasfsa "]*1000)
+    print(a)
