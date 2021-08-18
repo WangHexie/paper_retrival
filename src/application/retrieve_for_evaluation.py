@@ -1,5 +1,5 @@
 from ..data.data_transform import base_data_transformation, paper_data_transformation, get_all_pub_info, \
-    paper_embedding_transformation
+    paper_embedding_transformation, base_data_transformation_to_diction_records
 from ..data.dataset import Dataset
 from ..model.retrieval import BM25, TFIDFRetrieval, FastEmbeddingRetrievalModel
 from ..evaluation import accuracy_custom, mean_average_precision
@@ -16,6 +16,8 @@ class Retrieve:
                  transformation_kwargs: dict = None,
                  retrieval_kwargs: dict = None,
                  refine_kwargs: dict = None,
+                 hyper_param_search=False,
+                 evaluation_num=None,
                  prediction=False
                  ):
         """
@@ -28,10 +30,11 @@ class Retrieve:
         :param retrieval_kwargs:
         :param refine_kwargs:
         """
+        self.evaluation_num = evaluation_num
+        self.hyper_param_search = hyper_param_search
         self.refine_kwargs = refine_kwargs
         self.refine_retrieved_result = refine_retrieved_result
         self.base_data = Dataset().read_base_dataset()
-
 
         if prediction:
             self.pubs = Dataset().read_valid_dataset()
@@ -46,7 +49,11 @@ class Retrieve:
         self._setup()
 
     def _setup(self):
-        data_source = (base_data_transformation(self.base_data, **self.transformation_kwargs), self.base_data["id"])
+        if not self.hyper_param_search:
+            data_source = (base_data_transformation(self.base_data, **self.transformation_kwargs), self.base_data["id"])
+        else:
+            data_source = (base_data_transformation_to_diction_records(self.base_data, **self.transformation_kwargs),
+                           self.base_data["id"])
 
         if self.retrieval_method == "bm25":
             self.retrieve_model = BM25
@@ -58,20 +65,21 @@ class Retrieve:
             self.refinement_method = Graph(**self.refine_kwargs)
             self.refinement_method.fit(self.base_data)
 
-    def retrieve(self):
-        query = paper_data_transformation(self.pubs, **self.transformation_kwargs)
+        self.query = paper_data_transformation(self.pubs, **self.transformation_kwargs)
+
+    def retrieve(self, boost_scores=None):
         if self.refine_retrieved_result is not False:
-            return self.refinement_method.retrieve(self.retrieve_model.retrieve_data(query))
+            return self.refinement_method.retrieve(self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores))
         else:
-            return self.retrieve_model.retrieve_data(query)
+            return self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores)
 
     def evaluate_by_prediction(self, prediction):
-        return {"map": mean_average_precision(prediction, self.labels["experts"].values),
-                "acc_recall": accuracy_custom(prediction, self.labels["experts"].values),
+        return {"map": mean_average_precision(prediction, self.labels["experts"].values[:len(prediction)]),
+                "acc_recall": accuracy_custom(prediction, self.labels["experts"].values[:len(prediction)]),
                 "length": sum([len(i) for i in prediction]) / len(prediction)}
 
-    def evaluate(self):
-        prediction = self.retrieve()
+    def evaluate(self, boost_scores=None):
+        prediction = self.retrieve(boost_scores)
         return self.evaluate_by_prediction(prediction)
 
     def close(self):

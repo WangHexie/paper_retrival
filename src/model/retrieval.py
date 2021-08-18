@@ -73,8 +73,28 @@ class TfidfAnnSearch(SentenceSearch):
 
 
 class BM25(BaseRetrieval):
-    def __init__(self, data_source: Tuple[List[str], List[str]], index_name="pub", k=100, save=True, retrieve_by_score=False, temp_k=150, **kwargs):
+    def __init__(self, data_source: Tuple[List[str or dict], List[str]], index_name="pub", k=100, save=True,
+                 retrieve_by_score=False, temp_k=150, normalize_score=False, normalize_method="max",
+                 output_weight=False, length_normalize_func="linear", **kwargs):
+        """
+        test
+        :param data_source:
+        :param index_name:
+        :param k:
+        :param save:
+        :param retrieve_by_score:
+        :param temp_k:
+        :param normalize_score:
+        :param normalize_method: "max", "query_length"
+        :param output_weight:
+        :param length_normalize_func: "linear", "log"
+        :param kwargs:
+        """
         super().__init__(data_source)
+        self.length_normalize_func = (lambda x: x) if length_normalize_func == "linear" else (lambda x: math.log((1 + x),10))
+        self.output_weight = output_weight
+        self.normalize_method = normalize_method
+        self.normalize_score = normalize_score
         self.temp_k = temp_k
         self.retrieve_by_score = retrieve_by_score
         self.es = Elasticsearch(timeout=18000)
@@ -83,33 +103,69 @@ class BM25(BaseRetrieval):
         if save:
             self.save_to_database()
 
-    def retrieve_data(self, query: List[str]):
+    def retrieve_data(self, query: List[str], boost_scores=None):
 
         if self.retrieve_by_score:
-            result = self.multi_search(self.es, self.index_name, query, self.temp_k, add_score=True) # temp_k :make sure we have high recall, we can higher this later
+            result = self.multi_search(self.es, self.index_name, query, self.temp_k,
+                                       add_score=True,
+                                       field_boost_scores=boost_scores)  # temp_k :make sure we have high recall, we can higher this later
             quantile = 1 - (self.k / self.temp_k)
-            to_full_score = list(map(lambda x: x[-1], itertools.chain.from_iterable(result)))
+
+            scores = list(map(lambda x: [i[-1] for i in x], result))
+            ids = list(map(lambda x: [i[0] for i in x], result))
+
+            # do not normalize score or ....
+            if self.normalize_method == "max":
+                max_score = list(map(lambda x: max(x), scores))
+            elif self.normalize_method == "query_length":
+                max_score = list(map(lambda x: len(x.split()), query))
+            elif not self.normalize_score:
+                max_score = [1] * len(query)
+            else:
+                raise Exception("normalize_method not defined")
+
+            max_score = list(map(lambda x: self.length_normalize_func(x), max_score))
+
+            normalized_result = list(map(lambda x: [i / x[1] for i in x[0]], zip(scores, max_score)))
+            to_full_score = list(itertools.chain.from_iterable(normalized_result))
             threshold = np.quantile(to_full_score, quantile)
 
-            result = [list(map(lambda x:x[0], list(filter(lambda x:x[-1] > threshold, recalled_result )))) for recalled_result in result]
+            if self.output_weight:
+                result = [list(filter(lambda x: x[1] > threshold, zip(id_list, score_list))) for
+                          id_list, score_list in zip(ids, normalized_result)]
+            else:
+                result = [list(map(lambda x: x[0], filter(lambda x: x[1] > threshold, zip(id_list, score_list)))) for
+                          id_list, score_list in zip(ids, normalized_result)]
 
         else:
-            result = self.multi_search(self.es, self.index_name, query, self.k)
+            result = self.multi_search(self.es, self.index_name, query, self.k, field_boost_scores=boost_scores)
 
         return result
 
     @staticmethod
-    def multi_search(es, index_name, query_texts: list, k=100, chunk=150, add_score=False):
+    def multi_search(es, index_name, query_texts: list, k=100, chunk=150, add_score=False,
+                     field_boost_scores: dict = None):
         results = []
 
         for epoch in tqdm(range(math.ceil(len(query_texts) / chunk))):
             ms = MultiSearch(index=index_name).using(es)
             for i in range(epoch * chunk,
                            (epoch + 1) * chunk if (epoch + 1) * chunk < len(query_texts) else len(query_texts)):
-                body = {"query":
-                            {"match": {"content": query_texts[i]}},
-                        "size": k
+
+                if field_boost_scores is None:
+                    body = {"query":
+                                {"match": {"content": query_texts[i]}},
+                            "size": k
+                            }
+                else:
+                    body = {"query": {"multi_match":
+                        {
+                            "query": query_texts[i],
+                            "fields": [key + "^" + str(value) for key, value in field_boost_scores.items()]
                         }
+                    },
+                        "size": k
+                    }
 
                 s = Search().update_from_dict(body)
                 ms = ms.add(s)
@@ -128,9 +184,14 @@ class BM25(BaseRetrieval):
 
         def gendata(documents_str, indexes_str, index_name_str):
             for i in tqdm(range(len(documents_str))):
-                doc = {
-                    'content': documents_str[i]
-                }
+
+                if type(documents_str[i]) == str:
+
+                    doc = {
+                        'content': documents_str[i]
+                    }
+                else:
+                    doc = documents_str[i]
 
                 yield {
                     '_op_type': 'index',
@@ -148,11 +209,6 @@ class BM25(BaseRetrieval):
 
     def save_to_database(self):
         self.parallel_set_up_database(self.es, self.document, self.index, self.index_name)
-        # self.es.indices.put_settings({
-        #     self.index_name: {
-        #         "max_clause_count": 2
-        #     }
-        # })
         return self
 
     def reset_database(self):
@@ -209,7 +265,8 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
 
         length = math.ceil(len(self.embedding) / batch_size)
         for i in tqdm(range(length)):
-            self.p.add_items(self.embedding[i * batch_size:(i + 1) * batch_size], indexes[i * batch_size:(i + 1) * batch_size])
+            self.p.add_items(self.embedding[i * batch_size:(i + 1) * batch_size],
+                             indexes[i * batch_size:(i + 1) * batch_size])
             # del self.embedding[:batch_size]
 
         # Controlling the recall by setting ef:
@@ -231,7 +288,7 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
         labels, distances = self.p.knn_query(query, k=self.k)
 
         return [self.index[i] for i in labels]
-        
+
     def reset_database(self):
         return self
 

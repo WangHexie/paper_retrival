@@ -1,0 +1,31 @@
+ retrieval_method:
+   - "bm25"
+ transformation_kwargs:
+   keywords_transform:
+     - False
+   add_abstract:
+     - False
+   add_title:
+     - True
+   add_paper_keywords:
+     - True
+   add_prsf_interest:
+     - True
+   add_paper_title:
+     - True
+ retrieval_kwargs:
+   k:
+     - 50
+   retrieve_by_score:
+     - True
+   temp_k:
+     - 200
+   normalize_score:
+     - True
+   normalize_method:
+     - "query_length"
+   length_normalize_func:
+     - "linear"
+     - "log"
+
+ #     - 100

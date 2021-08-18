@@ -1,7 +1,8 @@
 import itertools
 from typing import List
 import math
-
+import functools
+import pandas as pd
 
 def convert_keywords_to_string(keywords: list, replace_symbol=" ", log_transform=False):
     if type(keywords) != list:
@@ -19,25 +20,66 @@ def convert_keywords_to_string(keywords: list, replace_symbol=" ", log_transform
         return " ".join([" ".join([i["t"].replace(" ", replace_symbol)] * 1) for i in keywords])
 
 
-def base_data_transformation(full_data_dataset, keywords_transform=False, log_transform=False, add_paper_keywords=False, add_prsf_interest=True,**kwargs):
+def base_data_transformation(full_data_dataset, keywords_transform=False, log_transform=False, add_paper_keywords=False, add_prsf_interest=True, add_paper_title=False,**kwargs):
     replace_key = "_" if keywords_transform else " "
     prfs_keywords = full_data_dataset["tags"].apply(lambda x: convert_keywords_to_string(x, replace_key, log_transform))
     prfs_interests = full_data_dataset["interests"].apply(
         lambda x: convert_keywords_to_string(x, replace_key, log_transform))
 
+    string_to_merge = []
     if add_prsf_interest:
-        prfs_full_keywords = prfs_keywords + prfs_interests
-    else:
-        prfs_full_keywords = None
+        string_to_merge.append(prfs_interests)
+        string_to_merge.append(prfs_keywords)
+
+    if add_paper_title:
+        paper_title = full_data_dataset["pub_info"].map(lambda x: " ".join([i["title"] for i in x]))
+        string_to_merge.append(paper_title)
 
     if add_paper_keywords:
         paper_keywords = full_data_dataset["pub_info"].map(lambda x: " ".join(itertools.chain.from_iterable([i["keywords"] for i in x])))
-        prfs_full_keywords = prfs_full_keywords + paper_keywords if prfs_full_keywords is not None else paper_keywords
+        string_to_merge.append(paper_keywords)
 
-    if not add_paper_keywords and not add_prsf_interest:
-        prfs_full_keywords = prfs_interests
+    if len(string_to_merge) == 0:
+        string_to_merge.append(prfs_interests)
 
+    prfs_full_keywords = functools.reduce(lambda x, y:x+y, string_to_merge)
     return prfs_full_keywords
+
+
+
+def base_data_transformation_to_diction_records(full_data_dataset, keywords_transform=False, log_transform=False, add_paper_keywords=False, add_prsf_interest=True, add_paper_title=False,**kwargs):
+    replace_key = "_" if keywords_transform else " "
+    prfs_keywords = full_data_dataset["tags"].apply(lambda x: convert_keywords_to_string(x, replace_key, log_transform))
+    prfs_interests = full_data_dataset["interests"].apply(
+        lambda x: convert_keywords_to_string(x, replace_key, log_transform))
+
+    string_to_merge = []
+    columns_name = []
+    if add_prsf_interest:
+        columns_name.append("prfs_interests")
+        string_to_merge.append(prfs_interests)
+        columns_name.append("prfs_keywords")
+
+        string_to_merge.append(prfs_keywords)
+
+    if add_paper_title:
+        paper_title = full_data_dataset["pub_info"].map(lambda x: " ".join([i["title"] for i in x]))
+        string_to_merge.append(paper_title)
+        columns_name.append("pub_title")
+
+    if add_paper_keywords:
+        paper_keywords = full_data_dataset["pub_info"].map(
+            lambda x: " ".join(itertools.chain.from_iterable([i["keywords"] for i in x])))
+        string_to_merge.append(paper_keywords)
+        columns_name.append("pub_keywords")
+
+    if len(string_to_merge) == 0:
+        columns_name.append("prfs_interests")
+        string_to_merge.append(prfs_interests)
+
+    data_df = pd.DataFrame(string_to_merge).T
+    data_df.columns = columns_name
+    return data_df.to_dict('records')
 
 
 def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False, abstract_length=200,
