@@ -12,6 +12,14 @@ import pysparnn.cluster_index as ci
 from sklearn import feature_extraction
 import numpy as np
 import hnswlib
+from sentence_transformers import LoggingHandler, util, SentenceTransformer
+from sentence_transformers.cross_encoder import CrossEncoder
+from sentence_transformers.cross_encoder.evaluation import CEBinaryClassificationEvaluator
+from sentence_transformers import InputExample
+import sklearn
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
 from ..config import root_path
 
 
@@ -91,7 +99,8 @@ class BM25(BaseRetrieval):
         :param kwargs:
         """
         super().__init__(data_source)
-        self.length_normalize_func = (lambda x: x) if length_normalize_func == "linear" else (lambda x: math.log((1 + x),10))
+        self.length_normalize_func = (lambda x: x) if length_normalize_func == "linear" else (
+            lambda x: math.log((1 + x), 10))
         self.output_weight = output_weight
         self.normalize_method = normalize_method
         self.normalize_score = normalize_score
@@ -302,6 +311,69 @@ class BiEncoder:
 
     def predict(self):
         pass
+
+
+class BertRankSE:
+    def __init__(self, batch_size=8, num_epochs=1, model_save_path=os.path.join(root_path, "models"), max_length=512,
+                 initial_load=True):
+        self.max_length = max_length
+        self.model_save_path = model_save_path
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        model_name = 'allenai/scibert_scivocab_uncased'
+        if initial_load:
+            try:
+                self.model = SentenceTransformer(os.path.join(self.model_save_path, model_name), device="cuda:1")
+            except:
+                self.model = SentenceTransformer(model_name, device="cuda:1",
+                                                 cache_folder=os.path.join(root_path, "models"))
+            self.model.save(os.path.join(self.model_save_path, model_name))
+
+    def load_model(self):
+        self.model = SentenceTransformer(os.path.join(root_path, "models", "manual_save"), device="cuda:1")
+
+        return self
+
+    @staticmethod
+    def _reformat_example(paper_text, user_text, labels):
+        assert len(paper_text) == len(user_text) and len(paper_text) == len(labels)
+        # breakpoint()
+        train_examples = [InputExample(texts=[paper[0], user[0]], label=y) for paper, user, y in
+                          zip(paper_text, user_text, labels)]
+        return train_examples
+
+    def train(self, paper_text, user_text, y):
+        data = self._reformat_example(paper_text, user_text, y)
+        train_data, test_data = train_test_split(data, shuffle=True, random_state=8888)
+        train_dataloader = DataLoader(train_data, shuffle=True, batch_size=self.batch_size)
+        # test_dataloader = DataLoader(test_data, shuffle=True, batch_size=self.batch_size)
+        evaluator = CEBinaryClassificationEvaluator.from_input_examples(test_data, name='Quora-dev')
+        warmup_steps = math.ceil(len(train_dataloader) * self.num_epochs * 0.1)  # 10% of train data for warm-up
+
+        model_save_path = os.path.join(self.model_save_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
+        self.model.fit(train_dataloader=train_dataloader,
+                       evaluator=evaluator,
+                       epochs=self.num_epochs,
+                       evaluation_steps=5000,
+                       warmup_steps=warmup_steps,
+                       output_path=model_save_path)
+        self.model.save(os.path.join(self.model_save_path, "manual_save"))
+        # self.model.save_model("../../../models")
+        return self
+
+    def predict(self, paper_text, user_text):
+        return self.model.predict(list(zip(paper_text, user_text)), show_progress_bar=True)
+
+    @staticmethod
+    def convert_prediction_to_dictionary(paper_id, user_id, prediction, threshold=0.3):
+        assert len(paper_id) == len(user_id) and len(paper_id) == len(prediction)
+        result = dict([(i, []) for i in set(paper_id)])
+        for paper, user, score in zip(paper_id, user_id, prediction):
+            if score > threshold:
+                result[paper].append(user)
+
+        return result
 
 
 if __name__ == '__main__':
