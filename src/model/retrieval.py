@@ -334,9 +334,9 @@ class BiEncoderRetrieval:
             try:
                 self.model = SentenceTransformer(os.path.join(self.model_save_path, model_name), device=self.device)
             except:
-                self.model = SentenceTransformer(model_name, device="cuda:1",
+                self.model = SentenceTransformer(model_name, device=self.device,
                                                  cache_folder=os.path.join(root_path, "models"))
-            self.model.save(os.path.join(self.model_save_path, model_name))
+                self.model.save(os.path.join(self.model_save_path, model_name))
 
     def load_model(self):
         self.model = SentenceTransformer(os.path.join(root_path, "models", "manual_save"), device=self.device)
