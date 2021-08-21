@@ -1,9 +1,12 @@
 import itertools
 import os
 import pickle
+import random
+from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 from elasticsearch import Elasticsearch
+from sentence_transformers.evaluation import InformationRetrievalEvaluator
 from tqdm import tqdm
 from elasticsearch.helpers import parallel_bulk
 import math
@@ -12,7 +15,7 @@ import pysparnn.cluster_index as ci
 from sklearn import feature_extraction
 import numpy as np
 import hnswlib
-from sentence_transformers import LoggingHandler, util, SentenceTransformer
+from sentence_transformers import LoggingHandler, util, SentenceTransformer, losses
 from sentence_transformers.cross_encoder import CrossEncoder
 from sentence_transformers.cross_encoder.evaluation import CEBinaryClassificationEvaluator
 from sentence_transformers import InputExample
@@ -20,6 +23,8 @@ import sklearn
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
+
+from src.model.loss.infonce import InfoNCE
 from ..config import root_path
 
 
@@ -313,46 +318,96 @@ class BiEncoder:
         pass
 
 
-class BertRankSE:
+class BiEncoderRetrieval:
     def __init__(self, batch_size=8, num_epochs=1, model_save_path=os.path.join(root_path, "models"), max_length=512,
-                 initial_load=True):
+                 initial_load=True, loss="infoNce", num_of_neg=2, model_name="paraphrase-TinyBERT-L6-v2", device="cuda:0"):
+        self.device = device
+        self.num_of_neg = num_of_neg
+        self.loss = loss
         self.max_length = max_length
         self.model_save_path = model_save_path
         self.num_epochs = num_epochs
         self.batch_size = batch_size
-        model_name = 'allenai/scibert_scivocab_uncased'
+        self.model_name = model_name
+        # model_name = 'allenai/scibert_scivocab_uncased'
         if initial_load:
             try:
-                self.model = SentenceTransformer(os.path.join(self.model_save_path, model_name), device="cuda:1")
+                self.model = SentenceTransformer(os.path.join(self.model_save_path, model_name), device=self.device)
             except:
                 self.model = SentenceTransformer(model_name, device="cuda:1",
                                                  cache_folder=os.path.join(root_path, "models"))
             self.model.save(os.path.join(self.model_save_path, model_name))
 
     def load_model(self):
-        self.model = SentenceTransformer(os.path.join(root_path, "models", "manual_save"), device="cuda:1")
+        self.model = SentenceTransformer(os.path.join(root_path, "models", "manual_save"), device=self.device)
 
         return self
 
     @staticmethod
-    def _reformat_example(paper_text, user_text, labels):
-        assert len(paper_text) == len(user_text) and len(paper_text) == len(labels)
+    def _reformat_example_batch_triplet(paper_text: List[str], user_texts: List[List[str]]):
+        assert len(paper_text) == len(user_texts)
         # breakpoint()
-        train_examples = [InputExample(texts=[paper[0], user[0]], label=y) for paper, user, y in
-                          zip(paper_text, user_text, labels)]
-        return train_examples
 
-    def train(self, paper_text, user_text, y):
-        data = self._reformat_example(paper_text, user_text, y)
-        train_data, test_data = train_test_split(data, shuffle=True, random_state=8888)
+        paper_examples = [InputExample(texts=[paper_text[i]], label=i) for i in range(len(paper_text))]
+
+        user_text_examples = list(itertools.chain.from_iterable(
+            [[InputExample(texts=[text], label=i) for text in user_texts[i]] for i in range(len(user_texts))]))
+        return paper_examples + user_text_examples
+
+    def _reformat_example_infonce(self, paper_text: List[str], user_texts: List[List[str]]):
+        assert len(paper_text) == len(user_texts)
+        # breakpoint()
+        full_user_text = list(itertools.chain.from_iterable(user_texts))
+
+        def generate_negative_samples(pos_text, full_text, num_to_generate):
+            neg_samples = random.sample(full_text, num_to_generate)
+            return list(filter(lambda x: x not in pos_text, neg_samples))
+
+        data = [InputExample(texts=[paper_text[i],
+                                    user_texts[i][user_index],
+                                    *generate_negative_samples(user_texts[i], user_texts, self.num_of_neg)],
+                             label=i) for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
+        return data
+
+    @staticmethod
+    def construct_evaluator(paper_text: List[str], user_texts: List[List[str]]):
+        queries = {str(i): paper_text for i in range(len(paper_text))}
+        docs = {hash(doc): doc for doc in itertools.chain.from_iterable(user_texts)}
+        relevant_docs = {str(i): set([hash(text) for text in user_texts[i]]) for i in range(len(user_texts))}
+        return InformationRetrievalEvaluator(queries=queries, corpus=docs, relevant_docs=relevant_docs,
+                                             precision_recall_at_k=[1, 3, 5, 10, 23, 50, 100], show_progress_bar=True)
+
+    def evaluate(self, paper_text, user_texts, full_texts):
+        queries = {str(i): paper_text for i in range(len(paper_text))}
+        docs = {hash(doc): doc for doc in full_texts}
+        relevant_docs = {str(i): set([hash(text) for text in user_texts[i]]) for i in range(len(user_texts))}
+        evaluator = InformationRetrievalEvaluator(queries=queries, corpus=docs, relevant_docs=relevant_docs,
+                                                  precision_recall_at_k=[1, 3, 5, 10, 23, 50, 100],
+                                                  show_progress_bar=True)
+
+        self.model.evaluate(evaluator, output_path=os.path.join(root_path, "evaluation_log", self.model_name))
+        return self
+
+    def train(self, paper_text, user_text):
+        train_paper_txt, test_paper_text, train_user_text, text_user_text = train_test_split(paper_text, user_text,
+                                                                                             shuffle=True,
+                                                                                             random_state=8888)
+        if self.loss == "infoNce":
+            train_data = self._reformat_example_infonce(train_paper_txt, train_user_text)
+        else:
+            train_data = self._reformat_example(train_paper_txt, train_user_text)
         train_dataloader = DataLoader(train_data, shuffle=True, batch_size=self.batch_size)
         # test_dataloader = DataLoader(test_data, shuffle=True, batch_size=self.batch_size)
-        evaluator = CEBinaryClassificationEvaluator.from_input_examples(test_data, name='Quora-dev')
+        evaluator = self.construct_evaluator(test_paper_text, text_user_text)
         warmup_steps = math.ceil(len(train_dataloader) * self.num_epochs * 0.1)  # 10% of train data for warm-up
 
         model_save_path = os.path.join(self.model_save_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        if self.loss == "infoNce":
+            train_loss = InfoNCE(self.model)
+        else:
+            train_loss = losses.BatchHardSoftMarginTripletLoss(model=self.model)
 
-        self.model.fit(train_dataloader=train_dataloader,
+        self.model.fit(train_objectives=[(train_dataloader, train_loss)],
                        evaluator=evaluator,
                        epochs=self.num_epochs,
                        evaluation_steps=5000,
@@ -362,18 +417,8 @@ class BertRankSE:
         # self.model.save_model("../../../models")
         return self
 
-    def predict(self, paper_text, user_text):
-        return self.model.predict(list(zip(paper_text, user_text)), show_progress_bar=True)
-
-    @staticmethod
-    def convert_prediction_to_dictionary(paper_id, user_id, prediction, threshold=0.3):
-        assert len(paper_id) == len(user_id) and len(paper_id) == len(prediction)
-        result = dict([(i, []) for i in set(paper_id)])
-        for paper, user, score in zip(paper_id, user_id, prediction):
-            if score > threshold:
-                result[paper].append(user)
-
-        return result
+    def predict(self, texts):
+        return self.model.encode(texts, show_progress_bar=True)
 
 
 if __name__ == '__main__':
