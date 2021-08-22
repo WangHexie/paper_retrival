@@ -2,12 +2,12 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import itertools
 
-from src.application.retrieve_for_evaluation import Retrieve
+from src.application.retrieve_for_evaluation import Retrieve, EmbeddingRetrieve
 from src.data.data_transform import paper_data_transformation, base_data_transformation
 from src.model.retrieval import BiEncoderRetrieval
 
 
-class BiEncoderRetrievalTrain:
+class BiEncoderRetrievalEvaluate:
     def __init__(self, model_name, device="cuda:0"):
         retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60, save=False),
                                    transformation_kwargs=dict(add_title=True))
@@ -42,7 +42,8 @@ class BiEncoderRetrievalTrain:
         return self
 
 
-
+def biencoder_evaluate():
+    EmbeddingRetrieve(transformation_kwargs=dict(add_abstract=True, add_title=True, abstract_length=200, log_transform=True), retrieval_kwargs=dict(k=23), )
 
 if __name__ == '__main__':
     BiEncoderRetrievalTrain("triplet").evaluate()

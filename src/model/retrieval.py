@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 from elasticsearch import Elasticsearch
+from sentence_transformers.datasets import SentenceLabelDataset
 from sentence_transformers.evaluation import InformationRetrievalEvaluator
 from tqdm import tqdm
 from elasticsearch.helpers import parallel_bulk
@@ -24,6 +25,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
+from src.model.sampler.unique_sampler import NoduplicateSampler
+from src.model.persist import PersistModel
 from src.model.loss.infonce import InfoNCE
 from ..config import root_path
 
@@ -320,7 +323,23 @@ class BiEncoder:
 
 class BiEncoderRetrieval:
     def __init__(self, batch_size=8, num_epochs=1, model_save_path=os.path.join(root_path, "models"), max_length=512,
-                 initial_load=True, loss="infoNce", num_of_neg=2, model_name="paraphrase-TinyBERT-L6-v2", device="cuda:0"):
+                 initial_load=True, loss="infoNce", num_of_neg=2, model_name="paraphrase-TinyBERT-L6-v2",
+                 device="cuda:0",
+                 multi_process=False):
+        """
+
+        :param batch_size:
+        :param num_epochs:
+        :param model_save_path:
+        :param max_length:
+        :param initial_load:
+        :param loss: infonce or  MultipleNegativesRankingLoss
+        :param num_of_neg:
+        :param model_name:
+        :param device:
+        :param multi_process:
+        """
+        self.multi_process = multi_process
         self.device = device
         self.num_of_neg = num_of_neg
         self.loss = loss
@@ -370,9 +389,24 @@ class BiEncoderRetrieval:
         return data
 
     @staticmethod
-    def construct_evaluator(paper_text: List[str], user_texts: List[List[str]]):
+    def _reformat_example_mnl(paper_text: List[str], user_texts: List[List[str]],
+                              hard_negatives: List[List[str]]):
+        assert len(paper_text) == len(user_texts) and len(user_texts) == len(hard_negatives)
+
+        data = [InputExample(texts=[paper_text[i],
+                                    user_texts[i][user_index],
+                                    hard_negatives[i][user_index % len(hard_negatives[i])]],
+                             label=i) for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
+        return data
+
+    @staticmethod
+    def construct_evaluator(paper_text: List[str], user_texts: List[List[str]], hard_negative: List[List[str]] = None):
         queries = {str(i): paper_text for i in range(len(paper_text))}
-        docs = {hash(doc): doc for doc in itertools.chain.from_iterable(user_texts)}
+        if hard_negative is not None:
+            docs = {hash(doc): doc for doc in itertools.chain.from_iterable(user_texts + hard_negative)}
+        else:
+            docs = {hash(doc): doc for doc in itertools.chain.from_iterable(user_texts)}
+
         relevant_docs = {str(i): set([hash(text) for text in user_texts[i]]) for i in range(len(user_texts))}
         return InformationRetrievalEvaluator(queries=queries, corpus=docs, relevant_docs=relevant_docs,
                                              precision_recall_at_k=[1, 3, 5, 10, 23, 50, 100], show_progress_bar=True)
@@ -388,17 +422,35 @@ class BiEncoderRetrieval:
         self.model.evaluate(evaluator, output_path=os.path.join(root_path, "evaluation_log", self.model_name))
         return self
 
-    def train(self, paper_text, user_text):
-        train_paper_txt, test_paper_text, train_user_text, text_user_text = train_test_split(paper_text, user_text,
-                                                                                             shuffle=True,
-                                                                                             random_state=8888)
+    def train(self, paper_text, user_text, negative_text=None):
+        if negative_text is not None:
+
+            train_paper_txt, test_paper_text, train_user_text, text_user_text, train_negative, test_negative = train_test_split(
+                paper_text, user_text, negative_text,
+                shuffle=True,
+                random_state=8888)
+        else:
+            train_paper_txt, test_paper_text, train_user_text, text_user_text = train_test_split(
+                paper_text, user_text,
+                shuffle=True,
+                random_state=8888)
         if self.loss == "infoNce":
             train_data = self._reformat_example_infonce(train_paper_txt, train_user_text)
+        elif self.loss == "MultipleNegativesRankingLoss":
+            train_data = self._reformat_example_mnl(train_paper_txt, train_user_text, train_negative)
         else:
-            train_data = self._reformat_example(train_paper_txt, train_user_text)
-        train_dataloader = DataLoader(train_data, shuffle=True, batch_size=self.batch_size)
-        # test_dataloader = DataLoader(test_data, shuffle=True, batch_size=self.batch_size)
-        evaluator = self.construct_evaluator(test_paper_text, text_user_text)
+            train_data = self._reformat_example_batch_triplet(train_paper_txt, train_user_text)
+
+        if self.loss == "MultipleNegativesRankingLoss":
+            sampler = NoduplicateSampler(train_data)
+            train_dataloader = DataLoader(train_data, sampler=sampler, shuffle=False, drop_last=True,
+                                          batch_size=self.batch_size)
+        else:
+            train_dataloader = DataLoader(train_data, batch_size=self.batch_size)
+        if negative_text is not None:
+            evaluator = self.construct_evaluator(test_paper_text, text_user_text, test_negative)
+        else:
+            evaluator = self.construct_evaluator(test_paper_text, text_user_text)
         warmup_steps = math.ceil(len(train_dataloader) * self.num_epochs * 0.1)  # 10% of train data for warm-up
 
         model_save_path = os.path.join(self.model_save_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
@@ -418,7 +470,27 @@ class BiEncoderRetrieval:
         return self
 
     def predict(self, texts):
-        return self.model.encode(texts, show_progress_bar=True)
+        if self.multi_process:
+            pools = self.model.start_multi_process_pool(["cuda:0", "cuda:1"])
+            return self.model.encode_multi_process(texts, pools)
+        else:
+            return self.model.encode(texts, show_progress_bar=True)
+
+
+class PersistSentenceBertModel:
+    def __init__(self, cache_name, emd_model_kwargs):
+        self.cache_name = cache_name
+        self.emd_model_kwargs = emd_model_kwargs
+
+    def load(self, document: List[str]):
+        pm = PersistModel(self.cache_name)
+        if pm.exist():
+            return pm.load()
+        else:
+            emb = BiEncoderRetrieval(**self.emd_model_kwargs)
+            embedding = emb.predict(document)
+            pm.save(embedding)
+            return embedding
 
 
 if __name__ == '__main__':

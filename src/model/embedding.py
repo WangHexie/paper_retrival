@@ -16,8 +16,6 @@ from transformers import AutoTokenizer, AutoModel
 from scipy.spatial.distance import cdist
 
 
-
-
 def load_model_and_tokenizer(model_name):
     model = AutoModel.from_pretrained(model_name,
                                       cache_dir=os.path.join(root_path, "models", model_name.split("/")[-1]),
@@ -117,7 +115,7 @@ class PersistEmbeddingModel:
         self.cache_name = cache_name
         self.emd_model_kwargs = emd_model_kwargs
 
-    def load(self, document:List[str]):
+    def load(self, document: List[str]):
         pm = PersistModel(self.cache_name)
         if pm.exist():
             return pm.load()

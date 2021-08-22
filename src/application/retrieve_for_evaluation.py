@@ -1,7 +1,7 @@
 from ..data.data_transform import base_data_transformation, paper_data_transformation, get_all_pub_info, \
     paper_embedding_transformation, base_data_transformation_to_diction_records
 from ..data.dataset import Dataset
-from ..model.retrieval import BM25, TFIDFRetrieval, FastEmbeddingRetrievalModel
+from ..model.retrieval import BM25, TFIDFRetrieval, FastEmbeddingRetrievalModel, PersistSentenceBertModel
 from ..evaluation import accuracy_custom, mean_average_precision
 from ..model.embedding import PersistEmbeddingModel
 from ..model.graph import Graph
@@ -69,7 +69,8 @@ class Retrieve:
 
     def retrieve(self, boost_scores=None):
         if self.refine_retrieved_result is not False:
-            return self.refinement_method.retrieve(self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores))
+            return self.refinement_method.retrieve(
+                self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores))
         else:
             return self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores)
 
@@ -89,15 +90,17 @@ class Retrieve:
 class EmbeddingRetrieve:
     def __init__(self,
                  transformation_kwargs: dict = None,
-                 retrieval_kwargs: dict = None):
+                 retrieval_kwargs: dict = None,
+                 model_kwargs: dict = None,
+                 model_type="sentencebert"):
         """
 
-        :param dataset_name:
-        :param transformation:
-        :param retrieval_method: [bm25, tfidf, embedding]
         :param transformation_kwargs:
         :param retrieval_kwargs:
         """
+        self.model_kwargs = model_kwargs
+        self.model = PersistSentenceBertModel if model_type == "sentencebert" else PersistEmbeddingModel
+        self.model_type = model_type
         self.base_data = Dataset().read_base_dataset()
 
         self.pubs, self.labels = Dataset().read_train_dataset()
@@ -109,7 +112,8 @@ class EmbeddingRetrieve:
             "keywords": "keywords.pk",
             "title": "title.pk",
             "abstract": "abstract.pk",
-            "prfs": "prfs.pk"
+            "prfs": "prfs.pk",
+            "pubs": "pubs.pk"
         }
 
         self.setup()
@@ -117,22 +121,28 @@ class EmbeddingRetrieve:
     def setup(self):
         prfs = base_data_transformation(self.base_data, **self.transformation_kwargs).values.tolist()
 
-        keywords, title, abstract = get_all_pub_info(self.pubs, **self.transformation_kwargs)
+        if self.model_type == "sentencebert":
+            pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
+            user_string = base_data_transformation(self.base_data, log_transform=True)
+            print("encoding pubs")
+            self.pubs_embedding = self.model(self.model_kwargs["model_name"]+self.cache_names["pubs"], self.model_kwargs).load(pubs_string.values)
+            print("encoding users")
+            self.p_emb = self.model(self.model_kwargs["model_name"]+self.cache_names["prfs"], self.model_kwargs).load(user_string.values)
+        else:
 
-        k_emb = PersistEmbeddingModel(self.cache_names["keywords"],
-                                      {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(keywords)
-        t_emb = PersistEmbeddingModel(self.cache_names["title"],
-                                      {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(title)
-        a_emb = PersistEmbeddingModel(self.cache_names["abstract"],
-                                      {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(abstract)
+            keywords, title, abstract = get_all_pub_info(self.pubs, **self.transformation_kwargs)
 
-        p_emb = PersistEmbeddingModel(
-            self.cache_names["prfs"] + "logs_transform_" + str(self.transformation_kwargs["log_transform"]),
-            {"model_name": "sentence-transformers/paraphrase-TinyBERT-L6-v2"}).load(prfs)
+            k_emb = self.model(self.cache_names["keywords"], self.model_kwargs).load(keywords)
+            t_emb = self.model(self.cache_names["title"], self.model_kwargs).load(title)
+            a_emb = self.model(self.cache_names["abstract"], self.model_kwargs).load(abstract)
 
-        self.pubs_embedding = paper_embedding_transformation(k_emb, t_emb, a_emb, **self.transformation_kwargs)
-        self.p_emb = p_emb
-        # self.retrieve_model = FastEmbeddingRetrievalModel((p_emb, self.base_data["id"]), **self.retrieval_kwargs)
+            p_emb = self.model(
+                self.cache_names["prfs"] + "logs_transform_" + str(self.transformation_kwargs["log_transform"]),
+                self.model_kwargs).load(prfs)
+
+            self.pubs_embedding = paper_embedding_transformation(k_emb, t_emb, a_emb, **self.transformation_kwargs)
+            self.p_emb = p_emb
+        self.retrieve_model = FastEmbeddingRetrievalModel((self.p_emb, self.base_data["id"]), **self.retrieval_kwargs)
 
     def retrieve(self):
         query = self.pubs_embedding
