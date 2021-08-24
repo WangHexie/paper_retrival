@@ -77,7 +77,7 @@ class Retrieve:
             self.query = dict(zip(keys, values))
 
     def retrieve(self, query_weight=None, boost_scores=None):
-        if self.query_weight is None:
+        if query_weight is None:
             return self.single_query(self.query[:self.evaluation_num], boost_scores)
         else:
             return self.multiple_query(query_weight, boost_scores)

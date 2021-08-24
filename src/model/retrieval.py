@@ -379,12 +379,12 @@ class BiEncoderRetrieval:
         full_user_text = list(itertools.chain.from_iterable(user_texts))
 
         def generate_negative_samples(pos_text, full_text, num_to_generate):
-            neg_samples = random.sample(full_text, num_to_generate)
-            return list(filter(lambda x: x not in pos_text, neg_samples))
+            neg_samples = random.sample(full_text, num_to_generate+15)
+            return list(filter(lambda x: x not in pos_text, neg_samples))[:num_to_generate]
 
         data = [InputExample(texts=[paper_text[i],
                                     user_texts[i][user_index],
-                                    *generate_negative_samples(user_texts[i], user_texts, self.num_of_neg)],
+                                    *generate_negative_samples(user_texts[i], full_user_text, self.num_of_neg)],
                              label=i) for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
         return data
 
