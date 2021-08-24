@@ -15,7 +15,7 @@ class NoduplicateSampler(Sampler[int]):
 
     def __init__(self, data_source: List) -> None:
         self.data_source = data_source
-        self._count_num_of_class()
+        # self._count_num_of_class()
 
     def _count_num_of_class(self):
         classes = list(map(lambda x: x.label, self.data_source))
@@ -33,6 +33,7 @@ class NoduplicateSampler(Sampler[int]):
         self.samples = samples
 
     def __iter__(self) -> Iterator[int]:
+        self._count_num_of_class()
 
         r = [list(filter(None, i)) for i in zip_longest(*self.samples)]
 

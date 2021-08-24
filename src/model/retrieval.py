@@ -401,18 +401,19 @@ class BiEncoderRetrieval:
 
     @staticmethod
     def construct_evaluator(paper_text: List[str], user_texts: List[List[str]], hard_negative: List[List[str]] = None):
-        queries = {str(i): paper_text for i in range(len(paper_text))}
+        queries = {str(i): paper_text[i] for i in range(len(paper_text))}
         if hard_negative is not None:
             docs = {hash(doc): doc for doc in itertools.chain.from_iterable(user_texts + hard_negative)}
         else:
             docs = {hash(doc): doc for doc in itertools.chain.from_iterable(user_texts)}
 
         relevant_docs = {str(i): set([hash(text) for text in user_texts[i]]) for i in range(len(user_texts))}
+
         return InformationRetrievalEvaluator(queries=queries, corpus=docs, relevant_docs=relevant_docs,
                                              precision_recall_at_k=[1, 3, 5, 10, 23, 50, 100], show_progress_bar=True)
 
     def evaluate(self, paper_text, user_texts, full_texts):
-        queries = {str(i): paper_text for i in range(len(paper_text))}
+        queries = {str(i): paper_text[i] for i in range(len(paper_text))}
         docs = {hash(doc): doc for doc in full_texts}
         relevant_docs = {str(i): set([hash(text) for text in user_texts[i]]) for i in range(len(user_texts))}
         evaluator = InformationRetrievalEvaluator(queries=queries, corpus=docs, relevant_docs=relevant_docs,
@@ -441,12 +442,17 @@ class BiEncoderRetrieval:
         else:
             train_data = self._reformat_example_batch_triplet(train_paper_txt, train_user_text)
 
+        # breakpoint()
+
         if self.loss == "MultipleNegativesRankingLoss":
             sampler = NoduplicateSampler(train_data)
             train_dataloader = DataLoader(train_data, sampler=sampler, shuffle=False, drop_last=True,
                                           batch_size=self.batch_size)
         else:
             train_dataloader = DataLoader(train_data, batch_size=self.batch_size)
+
+        breakpoint()
+
         if negative_text is not None:
             evaluator = self.construct_evaluator(test_paper_text, text_user_text, test_negative)
         else:

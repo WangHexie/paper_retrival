@@ -11,8 +11,8 @@ class BiEncoderRetrievalTrain:
     def __init__(self, model_name, device="cuda:0", loss="triplet",hard_neg=True):
         self.loss = loss
         self.hard_neg = hard_neg
-        if hard_neg:
-            self.loss = "MultipleNegativesRankingLoss"
+        # if hard_neg:
+        #     self.loss = "MultipleNegativesRankingLoss"
         retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60, save=False),
                                    transformation_kwargs=dict(add_title=True))
         self.retrieval_model = retrieval_model
@@ -66,4 +66,4 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", hard_neg=False, device="cuda:1").train()
+    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="MultipleNegativesRankingLoss",hard_neg=True, device="cuda:0").train()
