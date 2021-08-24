@@ -1,5 +1,9 @@
+import functools
+
+import pandas as pd
+
 from ..data.data_transform import base_data_transformation, paper_data_transformation, get_all_pub_info, \
-    paper_embedding_transformation, base_data_transformation_to_diction_records
+    paper_embedding_transformation, base_data_transformation_to_diction_records, create_paper_data_dict
 from ..data.dataset import Dataset
 from ..model.retrieval import BM25, TFIDFRetrieval, FastEmbeddingRetrievalModel, PersistSentenceBertModel
 from ..evaluation import accuracy_custom, mean_average_precision
@@ -18,7 +22,8 @@ class Retrieve:
                  refine_kwargs: dict = None,
                  hyper_param_search=False,
                  evaluation_num=None,
-                 prediction=False
+                 prediction=False,
+                 query_weight=False
                  ):
         """
 
@@ -30,6 +35,7 @@ class Retrieve:
         :param retrieval_kwargs:
         :param refine_kwargs:
         """
+        self.query_weight = query_weight
         self.evaluation_num = evaluation_num
         self.hyper_param_search = hyper_param_search
         self.refine_kwargs = refine_kwargs
@@ -64,23 +70,49 @@ class Retrieve:
         if self.refine_retrieved_result == "link":
             self.refinement_method = Graph(**self.refine_kwargs)
             self.refinement_method.fit(self.base_data)
+        if not self.query_weight:
+            self.query = paper_data_transformation(self.pubs, **self.transformation_kwargs)
+        else:
+            values, keys = create_paper_data_dict(self.pubs, **self.transformation_kwargs)
+            self.query = dict(zip(keys, values))
 
-        self.query = paper_data_transformation(self.pubs, **self.transformation_kwargs)
+    def retrieve(self, query_weight=None, boost_scores=None):
+        if self.query_weight is None:
+            return self.single_query(self.query[:self.evaluation_num], boost_scores)
+        else:
+            return self.multiple_query(query_weight, boost_scores)
 
-    def retrieve(self, boost_scores=None):
+    def multiple_query(self, query_weight=None, boost_scores=None):
+        def map_single_result(result, weight):
+            return [[user_id, score * weight] for user_id, score in result]
+
+        def merge_result(results_of_query):
+            length_of_queries = len(results_of_query)
+            scores = pd.DataFrame(functools.reduce(lambda x, y: x + y, results_of_query), columns=["id", "score"])
+            scores = scores.groupby(by="id").sum().reset_index()
+            scores["scores"] /= length_of_queries
+            return scores.id.values.tolist()
+
+        queries = self.query.values()
+        query_keys = self.query.keys()
+        results = [self.single_query(query, boost_scores)[:self.evaluation_num] for query in queries]
+        mapped_result = [map_single_result(value, query_weight[key]) for key, value in zip(query_keys, results)]
+        return merge_result(mapped_result)
+
+    def single_query(self, query, boost_scores=None):
         if self.refine_retrieved_result is not False:
             return self.refinement_method.retrieve(
-                self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores))
+                self.retrieve_model.retrieve_data(query, boost_scores))
         else:
-            return self.retrieve_model.retrieve_data(self.query[:self.evaluation_num], boost_scores)
+            return self.retrieve_model.retrieve_data(query, boost_scores)
 
     def evaluate_by_prediction(self, prediction):
         return {"map": mean_average_precision(prediction, self.labels["experts"].values[:len(prediction)]),
                 "acc_recall": accuracy_custom(prediction, self.labels["experts"].values[:len(prediction)]),
                 "length": sum([len(i) for i in prediction]) / len(prediction)}
 
-    def evaluate(self, boost_scores=None):
-        prediction = self.retrieve(boost_scores)
+    def evaluate(self, query_weight=None, boost_scores=None):
+        prediction = self.retrieve(query_weight, boost_scores)
         return self.evaluate_by_prediction(prediction)
 
     def close(self):
@@ -125,9 +157,11 @@ class EmbeddingRetrieve:
             pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
             user_string = base_data_transformation(self.base_data, log_transform=True)
             print("encoding pubs")
-            self.pubs_embedding = self.model(self.model_kwargs["model_name"]+self.cache_names["pubs"], self.model_kwargs).load(pubs_string.values)
+            self.pubs_embedding = self.model(self.model_kwargs["model_name"] + self.cache_names["pubs"],
+                                             self.model_kwargs).load(pubs_string.values)
             print("encoding users")
-            self.p_emb = self.model(self.model_kwargs["model_name"]+self.cache_names["prfs"], self.model_kwargs).load(user_string.values)
+            self.p_emb = self.model(self.model_kwargs["model_name"] + self.cache_names["prfs"], self.model_kwargs).load(
+                user_string.values)
         else:
 
             keywords, title, abstract = get_all_pub_info(self.pubs, **self.transformation_kwargs)

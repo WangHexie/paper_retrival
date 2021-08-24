@@ -84,15 +84,32 @@ def base_data_transformation_to_diction_records(full_data_dataset, keywords_tran
 
 def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False, abstract_length=200,
                               **kwargs) -> List[str]:
+    values, keys = create_paper_data_dict(pub, keywords_transform=False, add_abstract=False, add_title=False,
+                                          abstract_length=200,
+                                          **kwargs)
+    paper_full_info = functools.reduce(lambda x, y: x + y, values)
+
+    return "[PAPER] " + paper_full_info
+
+
+def create_paper_data_dict(pub, keywords_transform=False, add_abstract=False, add_title=False, abstract_length=200,
+                           **kwargs):
     replace_key = "_" if keywords_transform else " "
-    results = pub["keywords"].apply(lambda x: "[KEYWORD] " + " ".join(i.replace(" ", replace_key) for i in x))
+    info_list = []
+    columns_name = []
+    info_list.append(pub["keywords"].apply(
+        lambda x: "[KEYWORD] " + " ".join(i.replace(" ", replace_key) for i in x)))
+    columns_name.append("keyword")
     if add_title:
-        results += "[TITLE]" + pub["title"]
+        info_list.append("[TITLE]" + pub["title"])
+        columns_name.append("title")
 
     if add_abstract:
-        results += pub["abstract"].apply(lambda x: "[ABSTRACT] " + " ".join(x.split(" ")[:abstract_length]))
+        info_list.append(pub["abstract"].apply(
+            lambda x: "[ABSTRACT] " + " ".join(x.split(" ")[:abstract_length])))
+        columns_name.append("abstract")
 
-    return "[PAPER] " + results
+    return info_list, columns_name
 
 
 def get_all_pub_info(pub, abstract_length=200, **kwargs):

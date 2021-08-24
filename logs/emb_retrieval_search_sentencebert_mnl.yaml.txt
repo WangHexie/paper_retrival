@@ -1,0 +1,4 @@
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'mnl', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.01671640788034485, 'acc_recall': {'acc': 0.0321778656126527, 'recall': 0.04354802003448743, 'f1': 0.028550600362126786}}
+|||

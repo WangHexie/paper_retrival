@@ -1,0 +1,8 @@
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 50, 'retrieve_by_score': True, 'temp_k': 200, 'normalize_score': True, 'normalize_method': 'query_length', 'length_normalize_func': 'linear'}}
+|||
+{'map': 0.08198301133638695, 'acc_recall': {'acc': 0.13482885943276038, 'recall': 0.18934157055548778, 'f1': 0.08916737931973809}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 50, 'retrieve_by_score': True, 'temp_k': 200, 'normalize_score': True, 'normalize_method': 'query_length', 'length_normalize_func': 'log'}}
+|||
+{'map': 0.07151835482872979, 'acc_recall': {'acc': 0.10750554948585259, 'recall': 0.17245312003733232, 'f1': 0.06452902363660253}, 'length': 50.0}
+|||

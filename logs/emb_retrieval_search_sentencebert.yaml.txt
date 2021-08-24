@@ -1,0 +1,20 @@
+{'transformation_kwargs': {'log_transform': False, 'weight': [1, 0, 0]}, 'retrieval_kwargs': {'k': 23}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'triplet', 'multi_process': True}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'triplet', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'triplet', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'triplet', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 2.0675580391408756e-05, 'acc_recall': {'acc': 0.00015019762845849824, 'recall': 0.00011689547260691161, 'f1': 0.00010174586101855033}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infonce', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.003447958957472455, 'acc_recall': {'acc': 0.008411067193675608, 'recall': 0.010714542925894624, 'f1': 0.007202235182869571}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'paraphrase-TinyBERT-L6-v2', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.049581875898880766, 'acc_recall': {'acc': 0.07926482213438645, 'recall': 0.11778850893715435, 'f1': 0.07361437305953188}}
+|||

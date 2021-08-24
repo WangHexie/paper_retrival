@@ -1,2 +1,40 @@
 {'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 15, 'retrieve_by_score': True, 'temp_k': 150}}
 |||
+{'map': 0.028835911103827154, 'acc_recall': {'acc': 0.05065863812805112, 'recall': 0.06332712843872844, 'f1': 0.02601407108106124}, 'length': 14.999878787878789}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 10, 'retrieve_by_score': True, 'temp_k': 150}}
+|||
+{'map': 0.021260703739650402, 'acc_recall': {'acc': 0.03951595264093525, 'recall': 0.04368667299858718, 'f1': 0.020369223474043248}, 'length': 9.999939393939394}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 5, 'retrieve_by_score': True, 'temp_k': 150}}
+|||
+{'map': 0.011381435745976382, 'acc_recall': {'acc': 0.028328858109810943, 'recall': 0.019543240068569338, 'f1': 0.013259621253481381}, 'length': 4.999969696969697}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 30, 'retrieve_by_score': True, 'temp_k': 150}}
+|||
+{'map': 0.048343563029811173, 'acc_recall': {'acc': 0.07613697590433953, 'recall': 0.11511915834639873, 'f1': 0.042264410114699065}, 'length': 29.999757575757577}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 23, 'retrieve_by_score': True, 'temp_k': 150}}
+|||
+{'map': 0.03933470374466316, 'acc_recall': {'acc': 0.06547853534424455, 'recall': 0.09124067118247182, 'f1': 0.03455979718059205}, 'length': 22.99981818181818}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 15, 'retrieve_by_score': True, 'temp_k': 100}}
+|||
+{'map': 0.0358445053874289, 'acc_recall': {'acc': 0.061382632959331544, 'recall': 0.07761965835224353, 'f1': 0.03327701904490127}, 'length': 15.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 10, 'retrieve_by_score': True, 'temp_k': 100}}
+|||
+{'map': 0.026492406724744275, 'acc_recall': {'acc': 0.0481061899408819, 'recall': 0.054666399077363606, 'f1': 0.025208045604556896}, 'length': 10.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 5, 'retrieve_by_score': True, 'temp_k': 100}}
+|||
+{'map': 0.015442945315934707, 'acc_recall': {'acc': 0.03352865541277107, 'recall': 0.028145843328745694, 'f1': 0.016973219652426055}, 'length': 5.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 30, 'retrieve_by_score': True, 'temp_k': 100}}
+|||
+{'map': 0.06065601940097396, 'acc_recall': {'acc': 0.08590561343563378, 'recall': 0.14114549306245208, 'f1': 0.05552967558573425}, 'length': 30.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True}, 'retrieval_kwargs': {'k': 23, 'retrieve_by_score': True, 'temp_k': 100}}
+|||
+{'map': 0.05026118891177539, 'acc_recall': {'acc': 0.08019067860953549, 'recall': 0.11349771151068622, 'f1': 0.0466755300143343}, 'length': 23.0}
+|||

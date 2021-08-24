@@ -8,7 +8,7 @@ from src.model.retrieval import BiEncoderRetrieval
 
 
 class BiEncoderRetrievalTrain:
-    def __init__(self, model_name, device="cuda:0", loss="triplet",hard_neg=True):
+    def __init__(self, model_name, device="cuda:0", batch_size=32, loss="triplet", hard_neg=True):
         self.loss = loss
         self.hard_neg = hard_neg
         # if hard_neg:
@@ -17,7 +17,7 @@ class BiEncoderRetrievalTrain:
                                    transformation_kwargs=dict(add_title=True))
         self.retrieval_model = retrieval_model
 
-        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=32, device=device, loss=self.loss)
+        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device,num_epochs=8, loss=self.loss)
 
         self.pubs = retrieval_model.pubs
         self.user_info = retrieval_model.base_data
@@ -66,4 +66,5 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="MultipleNegativesRankingLoss",hard_neg=True, device="cuda:0").train()
+    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="triplet", hard_neg=True, device="cuda:0",
+                            batch_size=128).train()

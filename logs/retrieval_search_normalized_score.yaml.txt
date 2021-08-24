@@ -1,0 +1,38 @@
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 30, 'retrieve_by_score': True, 'temp_k': 100, 'normalize_score': True}}
+|||
+{'map': 0.07349373058190181, 'acc_recall': {'acc': 0.19790550949613087, 'recall': 0.15025163272127004, 'f1': 0.10844508669767233}, 'length': 30.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 30, 'retrieve_by_score': True, 'temp_k': 100, 'normalize_score': False}}
+|||
+{'map': 0.06445796131860863, 'acc_recall': {'acc': 0.09370901314644677, 'recall': 0.14661325784028276, 'f1': 0.05925497713085603}, 'length': 30.0}
+|||
+{'map': 0.07346985796860149, 'acc_recall': {'acc': 0.19767044269286463, 'recall': 0.1501594349472996, 'f1': 0.10833699785855957}, 'length': 30.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23, 'retrieve_by_score': True, 'temp_k': 100, 'normalize_score': True}}
+|||
+{'map': 0.06849706715551095, 'acc_recall': {'acc': 0.21446008497502672, 'recall': 0.12978112657068624, 'f1': 0.10555539224645923}, 'length': 23.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 10, 'retrieve_by_score': True, 'temp_k': 100, 'normalize_score': True}}
+|||
+{'map': 0.054051209544058676, 'acc_recall': {'acc': 0.25808284305058377, 'recall': 0.08092898240103143, 'f1': 0.08993757889340734}, 'length': 10.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 50, 'retrieve_by_score': True, 'temp_k': 100, 'normalize_score': True}}
+|||
+{'map': 0.08448926914860296, 'acc_recall': {'acc': 0.15500408468732949, 'recall': 0.20093328803042435, 'f1': 0.10805610279655756}, 'length': 50.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 30, 'retrieve_by_score': True, 'temp_k': 200, 'normalize_score': True}}
+|||
+{'map': 0.0699033139225466, 'acc_recall': {'acc': 0.20967078496239347, 'recall': 0.13711382882625303, 'f1': 0.10606028951796384}, 'length': 30.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23, 'retrieve_by_score': True, 'temp_k': 200, 'normalize_score': True}}
+|||
+{'map': 0.06526698467612631, 'acc_recall': {'acc': 0.22522915352868444, 'recall': 0.11865072124052047, 'f1': 0.10259424058797226}, 'length': 23.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 10, 'retrieve_by_score': True, 'temp_k': 200, 'normalize_score': True}}
+|||
+{'map': 0.05031502502264517, 'acc_recall': {'acc': 0.2678964986258423, 'recall': 0.07122522200161412, 'f1': 0.08446008376455254}, 'length': 10.0}
+|||
+{'retrieval_method': 'bm25', 'transformation_kwargs': {'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 50, 'retrieve_by_score': True, 'temp_k': 200, 'normalize_score': True}}
+|||
+{'map': 0.07897260813710318, 'acc_recall': {'acc': 0.17722764042687608, 'recall': 0.17951646418479741, 'f1': 0.10859303884757436}, 'length': 50.0}
+|||

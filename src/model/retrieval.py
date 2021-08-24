@@ -451,8 +451,6 @@ class BiEncoderRetrieval:
         else:
             train_dataloader = DataLoader(train_data, batch_size=self.batch_size)
 
-        breakpoint()
-
         if negative_text is not None:
             evaluator = self.construct_evaluator(test_paper_text, text_user_text, test_negative)
         else:
