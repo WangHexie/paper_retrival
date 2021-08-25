@@ -478,7 +478,7 @@ class BiEncoderRetrieval:
             pools = self.model.start_multi_process_pool(["cuda:0", "cuda:1"])
             return self.model.encode_multi_process(texts, pools)
         else:
-            return self.model.encode(texts, show_progress_bar=True)
+            return self.model.encode(texts, show_progress_bar=True, batch_size=self.batch_size)
 
 
 class PersistSentenceBertModel:

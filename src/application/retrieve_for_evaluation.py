@@ -1,5 +1,7 @@
 import functools
+import itertools
 
+import numpy as np
 import pandas as pd
 
 from ..data.data_transform import base_data_transformation, paper_data_transformation, get_all_pub_info, \
@@ -84,20 +86,34 @@ class Retrieve:
 
     def multiple_query(self, query_weight=None, boost_scores=None):
         def map_single_result(result, weight):
-            return [[user_id, score * weight] for user_id, score in result]
+            return [[(us[0], us[1] * weight) for us in i] for i in result]
 
-        def merge_result(results_of_query):
+        def merge_singe_result(results_of_query):
             length_of_queries = len(results_of_query)
-            scores = pd.DataFrame(functools.reduce(lambda x, y: x + y, results_of_query), columns=["id", "score"])
+            scores = pd.DataFrame(functools.reduce(lambda x, y: x + y, results_of_query),
+                                  columns=["id", "score"]).sort_values(by="score")
             scores = scores.groupby(by="id").sum().reset_index()
-            scores["scores"] /= length_of_queries
-            return scores.id.values.tolist()
+            scores["score"] /= length_of_queries
+            return scores.sort_values(by="score", ascending=False).values.tolist()
+
+        def merge_result(full_results):
+            return [merge_singe_result(result_of_query) for result_of_query in zip(*full_results)]
 
         queries = self.query.values()
         query_keys = self.query.keys()
-        results = [self.single_query(query, boost_scores)[:self.evaluation_num] for query in queries]
+        results = [self.single_query(query[:self.evaluation_num], boost_scores) for query in queries]
+        original_length = len(list(itertools.chain.from_iterable(results[0])))
+
         mapped_result = [map_single_result(value, query_weight[key]) for key, value in zip(query_keys, results)]
-        return merge_result(mapped_result)
+
+        merged_result = merge_result(mapped_result)
+        merged_length = len(list(itertools.chain.from_iterable(merged_result)))
+        quantile = original_length / merged_length
+        full_score = [j[1] for i in merged_result for j in i]
+        threshold = np.quantile(full_score, quantile)
+
+        return [list(map(lambda x: x[0], filter(lambda x: x[1] > threshold, single_paper_recommend))) for
+                single_paper_recommend in merged_result]
 
     def single_query(self, query, boost_scores=None):
         if self.refine_retrieved_result is not False:

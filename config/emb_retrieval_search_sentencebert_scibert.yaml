@@ -1,0 +1,22 @@
+transformation_kwargs:
+  add_abstract:
+    - True
+  add_title:
+    - True
+  abstract_length:
+    - 200
+  log_transform:
+    - True
+retrieval_kwargs:
+  k:
+    - 23
+model_kwargs:
+  model_name:
+    - scibert_24h
+    - allenai/scibert_scivocab_uncased
+  multi_process:
+    - False
+  device:
+    - cuda:1
+model_type:
+  - sentencebert
