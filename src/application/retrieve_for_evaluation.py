@@ -25,7 +25,8 @@ class Retrieve:
                  hyper_param_search=False,
                  evaluation_num=None,
                  prediction=False,
-                 query_weight=False
+                 query_weight=False,
+                 merge_by_weight=False
                  ):
         """
 
@@ -37,6 +38,7 @@ class Retrieve:
         :param retrieval_kwargs:
         :param refine_kwargs:
         """
+        self.merge_by_weight = merge_by_weight
         self.query_weight = query_weight
         self.evaluation_num = evaluation_num
         self.hyper_param_search = hyper_param_search
@@ -112,8 +114,14 @@ class Retrieve:
         full_score = [j[1] for i in merged_result for j in i]
         threshold = np.quantile(full_score, quantile)
 
-        return [list(map(lambda x: x[0], filter(lambda x: x[1] > threshold, single_paper_recommend))) for
-                single_paper_recommend in merged_result]
+        if self.merge_by_weight:
+            result = [list(map(lambda x: x[0], filter(lambda x: x[1] > threshold, single_paper_recommend))) for
+                      single_paper_recommend in merged_result]
+        else:
+            result = [[user[0] for user in single_paper_recommend[:original_length]] for single_paper_recommend in
+                      merged_result]
+
+        return result
 
     def single_query(self, query, boost_scores=None):
         if self.refine_retrieved_result is not False:

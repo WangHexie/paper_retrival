@@ -5,11 +5,16 @@ import itertools
 from .retrieve_for_evaluation import Retrieve
 from ..data.data_transform import paper_data_transformation, base_data_transformation
 from ..model.rerank import BertRerank, BertRankSE
+import json
 
 
 class BertRerankTrain:
     def __init__(self):
-        self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60), transformation_kwargs=dict(add_title=True))
+        self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60),
+                                        transformation_kwargs=dict(log_transform=True, add_abstract=False,
+                                                                   add_title=True,
+                                                                   add_paper_keywords=True, add_prsf_interest=True,
+                                                                   add_paper_title=True, abstract_length=200))
 
         self.rerank_model = BertRankSE()
 
@@ -21,7 +26,8 @@ class BertRerankTrain:
 
     def _setup(self):
         pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
-        user_string = base_data_transformation(self.user_info, log_transform=True)
+        user_string = base_data_transformation(self.user_info, log_transform=True, add_abstract=True, add_title=True,
+                                               add_paper_keywords=True, add_prsf_interest=True, add_paper_title=True)
 
         # warning: data reshape????
         self.user_string = pd.DataFrame(data=user_string.values, index=self.user_info["id"])
@@ -37,13 +43,16 @@ class BertRerankTrain:
 
         assert len(pubs_string) == len(user_ids) and len(pubs_string) == len(labels)
         print(len(pubs_string), len(user_ids), len(labels))
+
+        user_ids = [list(set(list(retrieved_data) + list(true_label))) for retrieved_data, true_label in zip(user_ids, labels)]
+
         # breakpoint()
-        full_pubs_string = list(itertools.chain.from_iterable([[pub] * len(user_id) for pub, user_id in zip(pubs_string, user_ids)]))
+        full_pubs_string = list(
+            itertools.chain.from_iterable([[pub] * len(user_id) for pub, user_id in zip(pubs_string, user_ids)]))
         full_user_string = list(itertools.chain.from_iterable(
             [self.user_string.loc[ids].values.tolist() for ids in user_ids]))
 
         y = [1 if user_id in label_list else 0 for ids, label_list in zip(user_ids, labels) for user_id in ids]
-
 
         print(len(full_user_string), len(full_pubs_string), len(y))
 
@@ -72,7 +81,9 @@ class BertRerankTrain:
 
 class BertRerankPrediction:
     def __init__(self):
-        self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60), transformation_kwargs=dict(add_title=True), prediction=True)
+        self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60),
+                                        transformation_kwargs=dict(log_transform=True, add_abstract=False, add_title=True,
+                                               add_paper_keywords=True, add_prsf_interest=True, add_paper_title=True, abstract_length=200), prediction=True)
 
         self.rerank_model = BertRankSE(initial_load=False).load_model()
 
@@ -83,7 +94,8 @@ class BertRerankPrediction:
 
     def _setup(self):
         pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
-        user_string = base_data_transformation(self.user_info, log_transform=True)
+        user_string = base_data_transformation(self.user_info,  log_transform=True, add_abstract=True, add_title=True,
+                                               add_paper_keywords=True, add_prsf_interest=True, add_paper_title=True)
 
         # warning: data reshape????
         self.user_string = pd.DataFrame(data=user_string.values, index=self.user_info["id"])
@@ -99,11 +111,12 @@ class BertRerankPrediction:
         assert len(pubs_string) == len(user_ids)
         print(len(pubs_string), len(user_ids))
         # breakpoint()
-        full_pubs_string = list(itertools.chain.from_iterable([[pub[0]] * len(user_id) for pub, user_id in zip(pubs_string, user_ids)]))
-        full_pubs_id = list(itertools.chain.from_iterable([[pub] * len(user_id) for pub, user_id in zip(self.pubs["id"].values, user_ids)]))
+        full_pubs_string = list(
+            itertools.chain.from_iterable([[pub[0]] * len(user_id) for pub, user_id in zip(pubs_string, user_ids)]))
+        full_pubs_id = list(itertools.chain.from_iterable(
+            [[pub] * len(user_id) for pub, user_id in zip(self.pubs["id"].values, user_ids)]))
         full_user_string = list(itertools.chain.from_iterable(
             [self.user_string.loc[ids].values.tolist() for ids in user_ids]))
-
 
         print(len(full_user_string), len(full_pubs_string))
 
@@ -115,7 +128,11 @@ class BertRerankPrediction:
         user_predictions = self.retrieval_model.retrieve()
         full_pubs_string, full_user_string, full_pubs_id = self._reformat_data(self.pubs_string, user_predictions)
         prediction = self.rerank_model.predict(full_pubs_string, full_user_string)
-        return self.rerank_model.convert_prediction_to_dictionary(full_pubs_id, list(itertools.chain.from_iterable(user_predictions)), prediction, threshold=threshold)
+        with open("rerank_prediction.json", "w") as f:
+            json.dump(prediction, f)
+        return self.rerank_model.convert_prediction_to_dictionary(full_pubs_id,
+                                                                  list(itertools.chain.from_iterable(user_predictions)),
+                                                                  prediction, threshold=threshold)
 
 
 if __name__ == '__main__':

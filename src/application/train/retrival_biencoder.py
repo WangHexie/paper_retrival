@@ -8,16 +8,17 @@ from src.model.retrieval import BiEncoderRetrieval
 
 
 class BiEncoderRetrievalTrain:
-    def __init__(self, model_name, device="cuda:0", batch_size=32, loss="triplet", hard_neg=True):
+    def __init__(self, model_name, device="cuda:0", batch_size=32, loss="triplet", hard_neg=True, track_train=False):
         self.loss = loss
         self.hard_neg = hard_neg
         # if hard_neg:
         #     self.loss = "MultipleNegativesRankingLoss"
-        retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60, save=False),
+        retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60, save=True),
                                    transformation_kwargs=dict(add_title=True))
         self.retrieval_model = retrieval_model
 
-        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device,num_epochs=8, loss=self.loss)
+        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=8,
+                                        loss=self.loss, track_train=track_train)
 
         self.pubs = retrieval_model.pubs
         self.user_info = retrieval_model.base_data
@@ -52,7 +53,7 @@ class BiEncoderRetrievalTrain:
             hard_negatives = None
         user_text = self.labels["experts"].map(lambda x: self.user_string.loc[x, 0].values.tolist()).to_list()
         pubs_text = self.pubs_string.loc[self.labels["pub_id"].values, 0].to_list()
-        self.model.train(pubs_text, user_text, hard_negatives)
+        self.model.train(pubs_text[:100], user_text[:100], hard_negatives[:100])
 
         return self
 
@@ -66,5 +67,5 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="triplet", hard_neg=True, device="cuda:0",
-                            batch_size=128).train()
+    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="infoNce", hard_neg=True, device="cuda:0",
+                            batch_size=32, track_train=True).train()

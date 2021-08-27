@@ -41,7 +41,7 @@ def create_list_of_string_from_base_data(full_data_dataset, keywords_transform=F
         string_to_merge.append(prfs_keywords)
 
     if add_paper_title:
-        paper_title = full_data_dataset["pub_info"].map(lambda x: "[TITLE] " + " ".join([i["title"] for i in x]))
+        paper_title = full_data_dataset["pub_info"].map(lambda x: "[TITLE] " + " / ".join([i["title"] for i in x]))
         string_to_merge.append(paper_title)
         columns_name.append("pub_title")
 
@@ -84,8 +84,8 @@ def base_data_transformation_to_diction_records(full_data_dataset, keywords_tran
 
 def paper_data_transformation(pub, keywords_transform=False, add_abstract=False, add_title=False, abstract_length=200,
                               **kwargs) -> List[str]:
-    values, keys = create_paper_data_dict(pub, keywords_transform=False, add_abstract=False, add_title=False,
-                                          abstract_length=200,
+    values, keys = create_paper_data_dict(pub, keywords_transform=keywords_transform, add_abstract=add_abstract, add_title=add_title,
+                                          abstract_length=abstract_length,
                                           **kwargs)
     paper_full_info = functools.reduce(lambda x, y: x + y, values)
 
