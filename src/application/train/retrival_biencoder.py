@@ -53,6 +53,7 @@ class BiEncoderRetrievalTrain:
             hard_negatives = None
         user_text = self.labels["experts"].map(lambda x: self.user_string.loc[x, 0].values.tolist()).to_list()
         pubs_text = self.pubs_string.loc[self.labels["pub_id"].values, 0].to_list()
+
         self.model.train(pubs_text[:100], user_text[:100], hard_negatives[:100])
 
         return self
@@ -67,5 +68,5 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="infoNce", hard_neg=True, device="cuda:0",
-                            batch_size=32, track_train=True).train()
+    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="infoNce", hard_neg=True, device="cuda:1",
+                            batch_size=32, track_train=True).evaluate()

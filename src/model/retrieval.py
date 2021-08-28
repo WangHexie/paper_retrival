@@ -20,6 +20,8 @@ import hnswlib
 from sentence_transformers import LoggingHandler, util, SentenceTransformer, losses
 from sentence_transformers.cross_encoder import CrossEncoder
 from sentence_transformers.cross_encoder.evaluation import CEBinaryClassificationEvaluator
+
+from src.model.dataset.dataset import InfoNCEDataset
 from src.model.sentencebert import EnhancedSentenceTransformer
 from sentence_transformers import InputExample
 import sklearn
@@ -452,7 +454,8 @@ class BiEncoderRetrieval:
                 shuffle=True,
                 random_state=8888)
         if self.loss == "infoNce":
-            train_data = self._reformat_example_infonce(train_paper_txt, train_user_text, train_negative)
+            train_data = InfoNCEDataset(train_paper_txt, train_user_text, train_negative, num_of_neg=self.num_of_neg,
+                                        num_of_hard_neg=self.num_of_hard_neg)
         elif self.loss == "MultipleNegativesRankingLoss":
             train_data = self._reformat_example_mnl(train_paper_txt, train_user_text, train_negative)
         else:

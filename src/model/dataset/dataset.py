@@ -1,3 +1,7 @@
+import itertools
+from typing import List
+
+from sentence_transformers import InputExample
 from torch.utils.data import Dataset
 import random
 
@@ -13,7 +17,8 @@ class InfoNCEDataset(Dataset):
         self.num_of_hard_neg = num_of_hard_neg
         # breakpoint()
         self.full_user_text = list(itertools.chain.from_iterable(user_texts))
-        self.full_paper_data = [paper_text[i] for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
+        self.full_paper_data = [paper_text[i] for i in range(len(paper_text)) for user_index in
+                                range(len(user_texts[i]))]
         self.full_paper_index = [i for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
 
     @staticmethod
@@ -26,7 +31,9 @@ class InfoNCEDataset(Dataset):
 
     def __getitem__(self, idx):
         return InputExample(texts=[self.full_paper_data[idx],
-                                    self.full_user_text[idx],
-                                    *generate_negative_samples(self.user_texts[self.full_paper_index[idx]], self.full_user_text, self.num_of_neg),
-                                    *random.sample(self.hard_negatives[self.full_paper_index[idx]], self.num_of_hard_neg)],
-                                 label=self.full_paper_index[idx])
+                                   self.full_user_text[idx],
+                                   *self.generate_negative_samples(self.user_texts[self.full_paper_index[idx]],
+                                                                   self.full_user_text, self.num_of_neg),
+                                   *random.sample(self.hard_negatives[self.full_paper_index[idx]],
+                                                  self.num_of_hard_neg)],
+                            label=self.full_paper_index[idx])

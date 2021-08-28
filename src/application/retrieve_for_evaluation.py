@@ -110,7 +110,9 @@ class Retrieve:
 
         merged_result = merge_result(mapped_result)
         merged_length = len(list(itertools.chain.from_iterable(merged_result)))
-        quantile = original_length / merged_length
+
+        quantile = 1 - original_length / merged_length
+
         full_score = [j[1] for i in merged_result for j in i]
         threshold = np.quantile(full_score, quantile)
 
@@ -213,6 +215,7 @@ class EmbeddingRetrieve:
 
     def close(self):
         self.retrieve_model.reset_database()
+
 
 
 if __name__ == '__main__':
