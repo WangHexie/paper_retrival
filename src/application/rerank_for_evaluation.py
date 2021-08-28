@@ -44,7 +44,8 @@ class BertRerankTrain:
         assert len(pubs_string) == len(user_ids) and len(pubs_string) == len(labels)
         print(len(pubs_string), len(user_ids), len(labels))
 
-        user_ids = [list(set(list(retrieved_data) + list(true_label))) for retrieved_data, true_label in zip(user_ids, labels)]
+        user_ids = [list(set(list(retrieved_data) + list(true_label))) for retrieved_data, true_label in
+                    zip(user_ids, labels)]
 
         # breakpoint()
         full_pubs_string = list(
@@ -80,12 +81,15 @@ class BertRerankTrain:
 
 
 class BertRerankPrediction:
-    def __init__(self):
-        self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60),
-                                        transformation_kwargs=dict(log_transform=True, add_abstract=False, add_title=True,
-                                               add_paper_keywords=True, add_prsf_interest=True, add_paper_title=True, abstract_length=200), prediction=True)
+    def __init__(self, model_name, k=60):
+        self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=k),
+                                        transformation_kwargs=dict(log_transform=True, add_abstract=False,
+                                                                   add_title=True,
+                                                                   add_paper_keywords=True, add_prsf_interest=True,
+                                                                   add_paper_title=True, abstract_length=200),
+                                        prediction=True)
 
-        self.rerank_model = BertRankSE(initial_load=False).load_model()
+        self.rerank_model = BertRankSE(model_name, initial_load=True)
 
         self.pubs = self.retrieval_model.pubs
         self.user_info = self.retrieval_model.base_data
@@ -94,7 +98,7 @@ class BertRerankPrediction:
 
     def _setup(self):
         pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
-        user_string = base_data_transformation(self.user_info,  log_transform=True, add_abstract=True, add_title=True,
+        user_string = base_data_transformation(self.user_info, log_transform=True, add_abstract=True, add_title=True,
                                                add_paper_keywords=True, add_prsf_interest=True, add_paper_title=True)
 
         # warning: data reshape????
@@ -130,6 +134,10 @@ class BertRerankPrediction:
         prediction = self.rerank_model.predict(full_pubs_string, full_user_string)
         with open("rerank_prediction.json", "w") as f:
             json.dump(prediction, f)
+
+        with open("rerank_user_prediction.json", "w") as f:
+            json.dump(user_predictions, f)
+
         return self.rerank_model.convert_prediction_to_dictionary(full_pubs_id,
                                                                   list(itertools.chain.from_iterable(user_predictions)),
                                                                   prediction, threshold=threshold)

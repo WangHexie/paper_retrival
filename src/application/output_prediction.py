@@ -16,7 +16,7 @@ def retrieval_output_prediction(k=5):
         json.dump(json_prediction, f)
 
 def rerank_output_prediction():
-    results = BertRerankPrediction().rerank(threshold=0.1057)
+    results = BertRerankPrediction("scibert_24h", k=60).rerank(threshold=0.1057)
 
     json_prediction = [{"pub_id": pub_id, "experts": experts} for pub_id, experts in results.items()]
     if not os.path.exists("output"):
