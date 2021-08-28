@@ -446,11 +446,13 @@ class BiEncoderRetrieval:
 
             train_paper_txt, test_paper_text, train_user_text, text_user_text, train_negative, test_negative = train_test_split(
                 paper_text, user_text, negative_text,
+                test_size=100,
                 shuffle=True,
                 random_state=8888)
         else:
             train_paper_txt, test_paper_text, train_user_text, text_user_text = train_test_split(
                 paper_text, user_text,
+                test_size=100,
                 shuffle=True,
                 random_state=8888)
         if self.loss == "infoNce":

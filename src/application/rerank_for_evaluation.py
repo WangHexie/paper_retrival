@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import itertools
@@ -128,7 +129,9 @@ class BertRerankPrediction:
 
         return full_pubs_string, [i[0] for i in full_user_string], full_pubs_id
 
-    def rerank(self, threshold=0.5):
+    def rerank(self, test_length=None):
+        if test_length is None:
+            test_length = [10, 23, 30]
         user_predictions = self.retrieval_model.retrieve()
         full_pubs_string, full_user_string, full_pubs_id = self._reformat_data(self.pubs_string, user_predictions)
         prediction = self.rerank_model.predict(full_pubs_string, full_user_string)
@@ -138,9 +141,18 @@ class BertRerankPrediction:
         with open("rerank_user_prediction.json", "w") as f:
             json.dump(user_predictions, f)
 
-        return self.rerank_model.convert_prediction_to_dictionary(full_pubs_id,
-                                                                  list(itertools.chain.from_iterable(user_predictions)),
-                                                                  prediction, threshold=threshold)
+        length = len(user_predictions)
+        # test_length = [10,23,30]
+        full_test_length = [i * length for i in test_length]
+        quantiles = [1 - i / len(full_pubs_string) for i in full_test_length]
+        thresholds = [np.quantile(prediction, quantile) for quantile in quantiles]
+        print(list(zip(test_length, thresholds)))
+
+        return [self.rerank_model.convert_prediction_to_dictionary(full_pubs_id,
+                                                                   list(
+                                                                       itertools.chain.from_iterable(user_predictions)),
+                                                                   prediction, threshold=threshold) for threshold in
+                thresholds]
 
 
 if __name__ == '__main__':

@@ -17,7 +17,7 @@ class BiEncoderRetrievalTrain:
                                    transformation_kwargs=dict(add_title=True))
         self.retrieval_model = retrieval_model
 
-        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=8,
+        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=10,
                                         loss=self.loss, track_train=track_train)
 
         self.pubs = retrieval_model.pubs
@@ -54,7 +54,7 @@ class BiEncoderRetrievalTrain:
         user_text = self.labels["experts"].map(lambda x: self.user_string.loc[x, 0].values.tolist()).to_list()
         pubs_text = self.pubs_string.loc[self.labels["pub_id"].values, 0].to_list()
 
-        self.model.train(pubs_text[:100], user_text[:100], hard_negatives[:100])
+        self.model.train(pubs_text, user_text, hard_negatives)
 
         return self
 
@@ -68,5 +68,5 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="infoNce", hard_neg=True, device="cuda:1",
-                            batch_size=32, track_train=True).evaluate()
+    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="infoNce", hard_neg=True, device="cuda:0",
+                            batch_size=32, track_train=False).train()
