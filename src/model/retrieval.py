@@ -8,6 +8,7 @@ from typing import List, Tuple
 from elasticsearch import Elasticsearch
 from sentence_transformers.datasets import SentenceLabelDataset
 from sentence_transformers.evaluation import InformationRetrievalEvaluator
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from elasticsearch.helpers import parallel_bulk
 import math
@@ -19,6 +20,9 @@ import hnswlib
 from sentence_transformers import LoggingHandler, util, SentenceTransformer, losses
 from sentence_transformers.cross_encoder import CrossEncoder
 from sentence_transformers.cross_encoder.evaluation import CEBinaryClassificationEvaluator
+
+from src.model.dataset.dataset import InfoNCEDataset
+from src.model.sentencebert import EnhancedSentenceTransformer
 from sentence_transformers import InputExample
 import sklearn
 import pandas as pd
@@ -121,41 +125,44 @@ class BM25(BaseRetrieval):
             self.save_to_database()
 
     def retrieve_data(self, query: List[str], boost_scores=None):
+        if self.retrieve_by_score:
+            k = self.temp_k
+        else:
+            k = self.k
+
+        result = self.multi_search(self.es, self.index_name, query, k, add_score=True, field_boost_scores=boost_scores)
+
+        scores = list(map(lambda x: [i[-1] for i in x], result))
+        ids = list(map(lambda x: [i[0] for i in x], result))
+
+        # do not normalize score or ....
+        if self.normalize_method == "max":
+            max_score = list(map(lambda x: max(x), scores))
+        elif self.normalize_method == "query_length":
+            max_score = list(map(lambda x: len(x.split()), query))
+        elif not self.normalize_score:
+            max_score = [1] * len(query)
+        else:
+            raise Exception("normalize_method not defined")
+
+        max_score = list(map(lambda x: self.length_normalize_func(x), max_score))
+
+        normalized_result = list(map(lambda x: [i / x[1] for i in x[0]], zip(scores, max_score)))
+        to_full_score = list(itertools.chain.from_iterable(normalized_result))
+        quantile = 1 - (self.k / self.temp_k)
+        threshold = np.quantile(to_full_score, quantile)
+
+        result = [list(zip(id_list, score_list)) for id_list, score_list in zip(ids, normalized_result)]
 
         if self.retrieve_by_score:
-            result = self.multi_search(self.es, self.index_name, query, self.temp_k,
-                                       add_score=True,
-                                       field_boost_scores=boost_scores)  # temp_k :make sure we have high recall, we can higher this later
-            quantile = 1 - (self.k / self.temp_k)
-
-            scores = list(map(lambda x: [i[-1] for i in x], result))
-            ids = list(map(lambda x: [i[0] for i in x], result))
-
-            # do not normalize score or ....
-            if self.normalize_method == "max":
-                max_score = list(map(lambda x: max(x), scores))
-            elif self.normalize_method == "query_length":
-                max_score = list(map(lambda x: len(x.split()), query))
-            elif not self.normalize_score:
-                max_score = [1] * len(query)
-            else:
-                raise Exception("normalize_method not defined")
-
-            max_score = list(map(lambda x: self.length_normalize_func(x), max_score))
-
-            normalized_result = list(map(lambda x: [i / x[1] for i in x[0]], zip(scores, max_score)))
-            to_full_score = list(itertools.chain.from_iterable(normalized_result))
-            threshold = np.quantile(to_full_score, quantile)
-
-            if self.output_weight:
-                result = [list(filter(lambda x: x[1] > threshold, zip(id_list, score_list))) for
-                          id_list, score_list in zip(ids, normalized_result)]
-            else:
-                result = [list(map(lambda x: x[0], filter(lambda x: x[1] > threshold, zip(id_list, score_list)))) for
-                          id_list, score_list in zip(ids, normalized_result)]
-
+            result = [list(filter(lambda x: x[1] > threshold, paper_)) for paper_ in result]
         else:
-            result = self.multi_search(self.es, self.index_name, query, self.k, field_boost_scores=boost_scores)
+            pass
+
+        if self.output_weight:
+            pass
+        else:
+            result = [[user_[0] for user_ in paper_] for paper_ in result]
 
         return result
 
@@ -324,7 +331,7 @@ class BiEncoder:
 class BiEncoderRetrieval:
     def __init__(self, batch_size=8, num_epochs=1, model_save_path=os.path.join(root_path, "models"), max_length=512,
                  initial_load=True, loss="infoNce", num_of_neg=2, model_name="paraphrase-TinyBERT-L6-v2",
-                 device="cuda:0",
+                 device="cuda:0", track_train=False, num_of_hard_neg=1,
                  multi_process=False):
         """
 
@@ -333,12 +340,14 @@ class BiEncoderRetrieval:
         :param model_save_path:
         :param max_length:
         :param initial_load:
-        :param loss: infonce or  MultipleNegativesRankingLoss
+        :param loss: infoNce or  MultipleNegativesRankingLoss
         :param num_of_neg:
         :param model_name:
         :param device:
         :param multi_process:
         """
+        self.num_of_hard_neg = num_of_hard_neg
+        self.track_train = track_train
         self.multi_process = multi_process
         self.device = device
         self.num_of_neg = num_of_neg
@@ -351,14 +360,15 @@ class BiEncoderRetrieval:
         # model_name = 'allenai/scibert_scivocab_uncased'
         if initial_load:
             try:
-                self.model = SentenceTransformer(os.path.join(self.model_save_path, model_name), device=self.device)
+                self.model = EnhancedSentenceTransformer(os.path.join(self.model_save_path, model_name),
+                                                         device=self.device)
             except:
-                self.model = SentenceTransformer(model_name, device=self.device,
-                                                 cache_folder=os.path.join(root_path, "models"))
+                self.model = EnhancedSentenceTransformer(model_name, device=self.device,
+                                                         cache_folder=os.path.join(root_path, "models"))
                 self.model.save(os.path.join(self.model_save_path, model_name))
 
     def load_model(self):
-        self.model = SentenceTransformer(os.path.join(root_path, "models", "manual_save"), device=self.device)
+        self.model = EnhancedSentenceTransformer(os.path.join(root_path, "models", "manual_save"), device=self.device)
 
         return self
 
@@ -373,19 +383,27 @@ class BiEncoderRetrieval:
             [[InputExample(texts=[text], label=i) for text in user_texts[i]] for i in range(len(user_texts))]))
         return paper_examples + user_text_examples
 
-    def _reformat_example_infonce(self, paper_text: List[str], user_texts: List[List[str]]):
+    def _reformat_example_infonce(self, paper_text: List[str], user_texts: List[List[str]],
+                                  hard_negatives: List[List[str]] = None):
         assert len(paper_text) == len(user_texts)
         # breakpoint()
         full_user_text = list(itertools.chain.from_iterable(user_texts))
 
         def generate_negative_samples(pos_text, full_text, num_to_generate):
-            neg_samples = random.sample(full_text, num_to_generate+15)
+            neg_samples = random.sample(full_text, num_to_generate + 15)
             return list(filter(lambda x: x not in pos_text, neg_samples))[:num_to_generate]
 
-        data = [InputExample(texts=[paper_text[i],
-                                    user_texts[i][user_index],
-                                    *generate_negative_samples(user_texts[i], full_user_text, self.num_of_neg)],
-                             label=i) for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
+        if hard_negatives is not None:
+            data = [InputExample(texts=[paper_text[i],
+                                        user_texts[i][user_index],
+                                        *generate_negative_samples(user_texts[i], full_user_text, self.num_of_neg),
+                                        *hard_negatives[i][:self.num_of_hard_neg]],
+                                 label=i) for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
+        else:
+            data = [InputExample(texts=[paper_text[i],
+                                        user_texts[i][user_index],
+                                        *generate_negative_samples(user_texts[i], full_user_text, self.num_of_neg)],
+                                 label=i) for i in range(len(paper_text)) for user_index in range(len(user_texts[i]))]
         return data
 
     @staticmethod
@@ -428,15 +446,18 @@ class BiEncoderRetrieval:
 
             train_paper_txt, test_paper_text, train_user_text, text_user_text, train_negative, test_negative = train_test_split(
                 paper_text, user_text, negative_text,
+                test_size=100,
                 shuffle=True,
                 random_state=8888)
         else:
             train_paper_txt, test_paper_text, train_user_text, text_user_text = train_test_split(
                 paper_text, user_text,
+                test_size=100,
                 shuffle=True,
                 random_state=8888)
         if self.loss == "infoNce":
-            train_data = self._reformat_example_infonce(train_paper_txt, train_user_text)
+            train_data = InfoNCEDataset(train_paper_txt, train_user_text, train_negative, num_of_neg=self.num_of_neg,
+                                        num_of_hard_neg=self.num_of_hard_neg)
         elif self.loss == "MultipleNegativesRankingLoss":
             train_data = self._reformat_example_mnl(train_paper_txt, train_user_text, train_negative)
         else:
@@ -449,7 +470,14 @@ class BiEncoderRetrieval:
             train_dataloader = DataLoader(train_data, sampler=sampler, shuffle=False, drop_last=True,
                                           batch_size=self.batch_size)
         else:
-            train_dataloader = DataLoader(train_data, batch_size=self.batch_size, shuffle=True)
+            train_dataloader = DataLoader(train_data, batch_size=self.batch_size)
+
+        if self.track_train and negative_text is not None:
+            test_paper_text, text_user_text, test_negative = train_paper_txt[:1000], train_user_text[
+                                                                                     :1000], train_negative[:1000]
+
+        if self.track_train and negative_text is None:
+            test_paper_text, text_user_text = train_paper_txt[:1000], train_user_text[:1000]
 
         if negative_text is not None:
             evaluator = self.construct_evaluator(test_paper_text, text_user_text, test_negative)
@@ -463,12 +491,15 @@ class BiEncoderRetrieval:
         else:
             train_loss = losses.BatchHardSoftMarginTripletLoss(model=self.model)
 
+        writer = SummaryWriter(log_dir=os.path.join(root_path, "tb_logs", self.model_name))
+
         self.model.fit(train_objectives=[(train_dataloader, train_loss)],
                        evaluator=evaluator,
                        epochs=self.num_epochs,
                        evaluation_steps=5000,
                        warmup_steps=warmup_steps,
-                       output_path=model_save_path)
+                       output_path=model_save_path,
+                       log_writer=writer)
         self.model.save(os.path.join(self.model_save_path, "manual_save"))
         # self.model.save_model("../../../models")
         return self
