@@ -470,7 +470,7 @@ class BiEncoderRetrieval:
             train_dataloader = DataLoader(train_data, sampler=sampler, shuffle=False, drop_last=True,
                                           batch_size=self.batch_size)
         else:
-            train_dataloader = DataLoader(train_data, batch_size=self.batch_size)
+            train_dataloader = DataLoader(train_data, batch_size=self.batch_size, shuffle=True)
 
         if self.track_train and negative_text is not None:
             test_paper_text, text_user_text, test_negative = train_paper_txt[:1000], train_user_text[
