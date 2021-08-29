@@ -270,7 +270,7 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
 
         batch_size = 1000
 
-        self.p = hnswlib.Index(space='ip', dim=dim)  # possible options are l2, cosine or ip
+        self.p = hnswlib.Index(space='cosine', dim=dim)  # possible options are l2, cosine or ip
 
         self.p.init_index(max_elements=num_elements, ef_construction=200, M=32)
         indexes = list(range(len(self.index)))
