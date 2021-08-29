@@ -180,8 +180,8 @@ class EmbeddingRetrieve:
         prfs = base_data_transformation(self.base_data, **self.transformation_kwargs).values.tolist()
 
         if self.model_type == "sentencebert":
-            pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
-            user_string = base_data_transformation(self.base_data, log_transform=True)
+            pubs_string = paper_data_transformation(self.pubs, **self.transformation_kwargs)
+            user_string = base_data_transformation(self.base_data, **self.transformation_kwargs)
             print("encoding pubs")
             self.pubs_embedding = self.model(self.model_kwargs["model_name"] + self.cache_names["pubs"],
                                              self.model_kwargs).load(pubs_string.values)

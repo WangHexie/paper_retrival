@@ -68,5 +68,5 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="infoNce", hard_neg=True, device="cuda:0",
-                            batch_size=32, track_train=False).train()
+    BiEncoderRetrievalTrain("infonce_long_hard", loss="infoNce", hard_neg=True, device="cuda:1",
+                            batch_size=32, track_train=False).evaluate()

@@ -264,25 +264,13 @@ class FastEmbeddingRetrievalModel(BaseRetrieval):
 
         self._index_init()
 
-        # self._load_index()
-
-    # def _save_embedding(self):
-    #     embeddings = self.batch_convert.batch_convert(self.documents.get_paragraph())
-    #
-    #     with open(self.embedding_path, "wb") as f:
-    #         pickle.dump(embeddings, f)
-    #
-    # def load_embedding(self):
-    #     with open(self.embedding_path, "rb") as f:
-    #         self.embedding = pickle.load(f)
-
     def _index_init(self):
         dim = len(self.embedding[0])
         num_elements = 5000000
 
         batch_size = 1000
 
-        self.p = hnswlib.Index(space='cosine', dim=dim)  # possible options are l2, cosine or ip
+        self.p = hnswlib.Index(space='ip', dim=dim)  # possible options are l2, cosine or ip
 
         self.p.init_index(max_elements=num_elements, ef_construction=200, M=32)
         indexes = list(range(len(self.index)))
@@ -436,7 +424,8 @@ class BiEncoderRetrieval:
         relevant_docs = {str(i): set([hash(text) for text in user_texts[i]]) for i in range(len(user_texts))}
         evaluator = InformationRetrievalEvaluator(queries=queries, corpus=docs, relevant_docs=relevant_docs,
                                                   precision_recall_at_k=[1, 3, 5, 10, 23, 50, 100],
-                                                  show_progress_bar=True)
+                                                  show_progress_bar=True,
+                                                  corpus_chunk_size=1000)
 
         self.model.evaluate(evaluator, output_path=os.path.join(root_path, "evaluation_log", self.model_name))
         return self
