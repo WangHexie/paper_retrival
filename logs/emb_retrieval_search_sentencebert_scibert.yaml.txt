@@ -1,0 +1,20 @@
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'scibert_24h', 'multi_process': False, 'device': 'cuda:0'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'scibert_24h', 'multi_process': False, 'device': 'cuda:0'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'scibert_24h', 'multi_process': False, 'device': 'cuda:0'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'scibert_24h', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.00384948120845025, 'acc_recall': {'acc': 0.007144927536231641, 'recall': 0.011157348014371012, 'f1': 0.006618992903953387}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'allenai/scibert_scivocab_uncased', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'scibert_24h', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.00435535899667963, 'acc_recall': {'acc': 0.00816337285902474, 'recall': 0.01230915027943343, 'f1': 0.007458619216303511}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'allenai/scibert_scivocab_uncased', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.001797995784085836, 'acc_recall': {'acc': 0.003086956521739054, 'recall': 0.004440780081728504, 'f1': 0.0027278872165238353}}
+|||

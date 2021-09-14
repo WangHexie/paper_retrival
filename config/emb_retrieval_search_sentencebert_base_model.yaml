@@ -1,0 +1,27 @@
+transformation_kwargs:
+  log_transform:
+    - True
+  keywords_transform:
+    - False
+  add_abstract:
+    - False
+  add_title:
+    - True
+  add_paper_keywords:
+    - True
+  add_prsf_interest:
+    - True
+  add_paper_title:
+    - True
+retrieval_kwargs:
+  k:
+    - 23
+model_kwargs:
+  model_name:
+    - all-distilroberta-v1
+    - all-mpnet-base-v2
+    - paraphrase-TinyBERT-L6-v2
+  multi_process:
+    - False
+model_type:
+  - sentencebert

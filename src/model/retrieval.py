@@ -378,7 +378,7 @@ class BiEncoderRetrieval:
         full_user_text = list(itertools.chain.from_iterable(user_texts))
 
         def generate_negative_samples(pos_text, full_text, num_to_generate):
-            neg_samples = random.sample(full_text, num_to_generate + 15)
+            neg_samples = random.sample(full_text, num_to_generate *3)
             return list(filter(lambda x: x not in pos_text, neg_samples))[:num_to_generate]
 
         if hard_negatives is not None:
@@ -449,13 +449,13 @@ class BiEncoderRetrieval:
                                         num_of_hard_neg=self.num_of_hard_neg)
         elif self.loss == "MultipleNegativesRankingLoss":
             train_data = self._reformat_example_mnl(train_paper_txt, train_user_text, train_negative)
-        else:
+        elif self.loss == "triplet":
             train_data = self._reformat_example_batch_triplet(train_paper_txt, train_user_text)
 
         # breakpoint()
 
         if self.loss == "MultipleNegativesRankingLoss":
-            sampler = NoduplicateSampler(train_data)
+            sampler = NoduplicateSampler(train_data, self.batch_size)
             train_dataloader = DataLoader(train_data, sampler=sampler, shuffle=False, drop_last=True,
                                           batch_size=self.batch_size)
         else:
@@ -477,10 +477,12 @@ class BiEncoderRetrieval:
         model_save_path = os.path.join(self.model_save_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         if self.loss == "infoNce":
             train_loss = InfoNCE(self.model)
-        else:
+        elif self.loss == "MultipleNegativesRankingLoss":
+            train_loss = losses.MultipleNegativesRankingLoss(model=self.model)
+        elif self.loss == "triplet":
             train_loss = losses.BatchHardSoftMarginTripletLoss(model=self.model)
 
-        writer = SummaryWriter(log_dir=os.path.join(root_path, "tb_logs", self.model_name))
+        writer = SummaryWriter(log_dir=os.path.join(root_path, "tb_logs", self.model_name, datetime.now().strftime("%Y-%m-%d_%H-%M-%S")))
 
         self.model.fit(train_objectives=[(train_dataloader, train_loss)],
                        evaluator=evaluator,
@@ -518,5 +520,5 @@ class PersistSentenceBertModel:
 
 
 if __name__ == '__main__':
-    print(BM25((["dafasdfa"], ["fdasfa "])).reset_database())
+    BiEncoderRetrieval(model_name="all-mpnet-base-v2", device="cpu")
     # print(TFIDFRetrieval((["dafasdfa"], ["fdasfa "])).retrieve_data(["da"]))

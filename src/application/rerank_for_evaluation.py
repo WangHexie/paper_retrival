@@ -12,10 +12,11 @@ import json
 class BertRerankTrain:
     def __init__(self):
         self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=60),
-                                        transformation_kwargs=dict(log_transform=True, add_abstract=False,
+                                        transformation_kwargs=dict(add_abstract=False,
                                                                    add_title=True,
                                                                    add_paper_keywords=True, add_prsf_interest=True,
-                                                                   add_paper_title=True, abstract_length=200))
+                                                                   add_paper_title=True, abstract_length=200),
+                                        hyper_param_search=True)
 
         self.rerank_model = BertRankSE()
 
@@ -63,7 +64,12 @@ class BertRerankTrain:
         return full_pubs_string, full_user_string, y
 
     def rerank(self):
-        user_predictions = self.retrieval_model.retrieve()
+        user_predictions = self.retrieval_model.retrieve(boost_scores=dict(
+            prfs_interests=0.8,
+            prfs_keywords=0.8,
+            pub_title=1,
+            pub_keywords=0.87,
+        ))
         retrieve_metrics = self.retrieval_model.evaluate_by_prediction(user_predictions)
         print(retrieve_metrics)
 
@@ -84,11 +90,12 @@ class BertRerankTrain:
 class BertRerankPrediction:
     def __init__(self, model_name, k=60):
         self.retrieval_model = Retrieve("", "", "bm25", retrieval_kwargs=dict(k=k),
-                                        transformation_kwargs=dict(log_transform=True, add_abstract=False,
+                                        transformation_kwargs=dict(add_abstract=False,
                                                                    add_title=True,
                                                                    add_paper_keywords=True, add_prsf_interest=True,
                                                                    add_paper_title=True, abstract_length=200),
-                                        prediction=True)
+                                        prediction=True,
+                                        hyper_param_search=True)
 
         self.rerank_model = BertRankSE(model_name, initial_load=True)
 
@@ -132,7 +139,12 @@ class BertRerankPrediction:
     def rerank(self, test_length=None):
         if test_length is None:
             test_length = [10, 23, 30]
-        user_predictions = self.retrieval_model.retrieve()
+        user_predictions = self.retrieval_model.retrieve(boost_scores=dict(
+            prfs_interests=0.8,
+            prfs_keywords=0.8,
+            pub_title=1,
+            pub_keywords=0.87,
+        ))
         full_pubs_string, full_user_string, full_pubs_id = self._reformat_data(self.pubs_string, user_predictions)
         prediction = self.rerank_model.predict(full_pubs_string, full_user_string)
         with open("rerank_prediction.json", "w") as f:

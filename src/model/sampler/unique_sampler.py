@@ -1,4 +1,5 @@
 import itertools
+import random
 from itertools import zip_longest
 from random import shuffle
 from typing import List, Iterator
@@ -13,8 +14,10 @@ class NoduplicateSampler(Sampler[int]):
         data_source (Dataset): dataset to sample from
     """
 
-    def __init__(self, data_source: List) -> None:
+    def __init__(self, data_source: List, batch_size) -> None:
         self.data_source = data_source
+        self.batch_size = batch_size
+        self.full_list = self._create_full_list()
         # self._count_num_of_class()
 
     def _count_num_of_class(self):
@@ -32,12 +35,28 @@ class NoduplicateSampler(Sampler[int]):
 
         self.samples = samples
 
-    def __iter__(self) -> Iterator[int]:
+    def _create_full_list(self):
         self._count_num_of_class()
 
         r = [list(filter(None, i)) for i in zip_longest(*self.samples)]
+        r = list(filter(lambda x: len(x) >= self.batch_size, r))
+        full_list = list(itertools.chain.from_iterable(r))
+        return full_list
 
-        return iter(list(itertools.chain.from_iterable(r)))
+    def __iter__(self) -> Iterator[int]:
+        self.full_list = self._create_full_list()
+        return iter(self.full_list)
 
     def __len__(self) -> int:
-        return len(self.data_source)
+        return len(self.full_list)
+
+
+class TestSampler:
+
+    def __init__(self) -> None:
+        pass
+
+    def __iter__(self):
+        r = [random.randint(1, 10) for i in range(10)]
+
+        return iter(r)

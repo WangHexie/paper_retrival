@@ -127,6 +127,9 @@ class PersistEmbeddingModel:
 
 
 if __name__ == '__main__':
-    m, t = load_model_and_tokenizer("sentence-transformers/paraphrase-TinyBERT-L6-v2")
+    # m, t = load_model_and_tokenizer("sentence-transformers/paraphrase-TinyBERT-L6-v2")
+    m, t = load_model_and_tokenizer("sentence-transformers/all-mpnet-base-v2")
+
+
     # tokenizer = download_auto_model("sentence-transformers/paraphrase-TinyBERT-L6-v2")
     # model = download_auto_model("sentence-transformers/paraphrase-TinyBERT-L6-v2")

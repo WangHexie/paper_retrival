@@ -11,7 +11,7 @@ class InfoNCE(nn.Module):
     def __init__(self, model: SentenceTransformer):
         super(InfoNCE, self).__init__()
         self.sentence_embedder = model
-        self.T = 0.07
+        self.T = 1
         self.cross_entropy = nn.CrossEntropyLoss()
 
     def forward(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):

@@ -1,0 +1,20 @@
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infoce_big_neg', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'all-distilroberta-v1', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.027294119506969892, 'acc_recall': {'acc': 0.044641633728594865, 'recall': 0.06835252339108384, 'f1': 0.04145053044478397}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'all-mpnet-base-v2', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'all-distilroberta-v1', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.02733932569877314, 'acc_recall': {'acc': 0.04473913043478723, 'recall': 0.06849528931841099, 'f1': 0.041528762221935606}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'all-mpnet-base-v2', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.04944930316875124, 'acc_recall': {'acc': 0.07717523056653454, 'recall': 0.11382923700275216, 'f1': 0.07108246776269711}}
+|||
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'paraphrase-TinyBERT-L6-v2', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.04951846493468875, 'acc_recall': {'acc': 0.07919367588932708, 'recall': 0.11771570075509798, 'f1': 0.07355850642946032}}
+|||

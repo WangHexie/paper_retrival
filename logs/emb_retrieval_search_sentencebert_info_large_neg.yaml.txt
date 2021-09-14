@@ -1,0 +1,4 @@
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infoce_big_neg', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.019562374424178824, 'acc_recall': {'acc': 0.03924901185771129, 'recall': 0.058301553390469774, 'f1': 0.03735149327534313}}
+|||

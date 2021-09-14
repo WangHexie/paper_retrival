@@ -1,0 +1,6 @@
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'allenai-specter', 'multi_process': False, 'device': 'cuda:0'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'log_transform': True, 'keywords_transform': False, 'add_abstract': False, 'add_title': True, 'add_paper_keywords': True, 'add_prsf_interest': True, 'add_paper_title': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'allenai-specter', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.03858663854502875, 'acc_recall': {'acc': 0.06388010540184873, 'recall': 0.09825428953992241, 'f1': 0.05994372592163674}}
+|||

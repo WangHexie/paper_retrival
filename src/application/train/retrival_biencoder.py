@@ -17,8 +17,8 @@ class BiEncoderRetrievalTrain:
                                    transformation_kwargs=dict(add_title=True))
         self.retrieval_model = retrieval_model
 
-        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=10,
-                                        loss=self.loss, track_train=track_train)
+        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=2,
+                                        loss=self.loss, track_train=track_train, num_of_neg=1)
 
         self.pubs = retrieval_model.pubs
         self.user_info = retrieval_model.base_data
@@ -27,8 +27,14 @@ class BiEncoderRetrievalTrain:
         self._setup()
 
     def _setup(self):
-        pubs_string = paper_data_transformation(self.pubs, add_abstract=True, add_title=True, abstract_length=200)
-        user_string = base_data_transformation(self.user_info, log_transform=True)
+        pubs_string = paper_data_transformation(self.pubs, add_abstract=False,
+                                                add_title=True,
+                                                add_paper_keywords=True, add_prsf_interest=True,
+                                                add_paper_title=True, abstract_length=200)
+        user_string = base_data_transformation(self.user_info, log_transform=True, add_abstract=False,
+                                               add_title=True,
+                                               add_paper_keywords=True, add_prsf_interest=True,
+                                               add_paper_title=True, abstract_length=200)
 
         # warning: data reshape????
         self.user_string = pd.DataFrame(data=user_string.values, index=self.user_info["id"])
@@ -68,5 +74,6 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("infonce_long_hard", loss="infoNce", hard_neg=True, device="cuda:1",
-                            batch_size=32, track_train=False).evaluate()
+    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="MultipleNegativesRankingLoss", hard_neg=True,
+                            device="cuda:0",
+                            batch_size=32, track_train=False).train()

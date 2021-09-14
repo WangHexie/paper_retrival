@@ -1,0 +1,14 @@
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infonce_long_hard', 'multi_process': False, 'device': 'cuda:0'}, 'model_type': 'sentencebert'}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infonce_long_hard', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.014768932528016109, 'acc_recall': {'acc': 0.034022397891967864, 'recall': 0.04800433688191088, 'f1': 0.030936762508653574}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infonce_long_hard', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.011494840272584192, 'acc_recall': {'acc': 0.027461133069832857, 'recall': 0.03804867848613776, 'f1': 0.024733756775843174}}
+|||
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'infonce_long_hard', 'multi_process': False, 'device': 'cuda:1'}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.012961042383522912, 'acc_recall': {'acc': 0.030579710144932316, 'recall': 0.04139096927368124, 'f1': 0.027372023906908616}}
+|||

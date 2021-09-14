@@ -1,0 +1,4 @@
+{'transformation_kwargs': {'add_abstract': True, 'add_title': True, 'abstract_length': 200, 'log_transform': True}, 'retrieval_kwargs': {'k': 23}, 'model_kwargs': {'model_name': 'triplet_longtime', 'multi_process': False}, 'model_type': 'sentencebert'}
+|||
+{'map': 0.007091851659748697, 'acc_recall': {'acc': 0.014559947299077175, 'recall': 0.023019087673945594, 'f1': 0.013871185340391088}}
+|||

@@ -1,0 +1,27 @@
+transformation_kwargs:
+  log_transform:
+    - True
+  keywords_transform:
+    - False
+  add_abstract:
+    - False
+  add_title:
+    - True
+  add_paper_keywords:
+    - True
+  add_prsf_interest:
+    - True
+  add_paper_title:
+    - True
+retrieval_kwargs:
+  k:
+    - 23
+model_kwargs:
+  model_name:
+    - allenai-specter
+  multi_process:
+    - False
+  device:
+    - cuda:1
+model_type:
+  - sentencebert

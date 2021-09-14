@@ -1,0 +1,27 @@
+transformation_kwargs:
+  add_abstract:
+    - False
+  add_title:
+    - True
+  abstract_length:
+    - 200
+  add_paper_keywords:
+    - True
+  add_prsf_interest:
+    - True
+  add_paper_title:
+    - True
+  log_transform:
+    - True
+retrieval_kwargs:
+  k:
+    - 23
+model_kwargs:
+  model_name:
+    - 2021-09-13_16-50-09
+  multi_process:
+    - False
+  device:
+    - cuda:1
+model_type:
+  - sentencebert
