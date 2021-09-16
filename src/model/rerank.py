@@ -83,7 +83,7 @@ class BertRankSE:
     def _reformat_example(paper_text, user_text, labels):
         assert len(paper_text) == len(user_text) and len(paper_text) == len(labels)
         # breakpoint()
-        train_examples = [InputExample(texts=[paper[0], user[0]], label=y) for paper, user, y in
+        train_examples = [InputExample(texts=[paper, user], label=y) for paper, user, y in
                           zip(paper_text, user_text, labels)]
         return train_examples
 

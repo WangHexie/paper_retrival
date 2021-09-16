@@ -17,7 +17,7 @@ class BiEncoderRetrievalTrain:
                                    transformation_kwargs=dict(add_title=True))
         self.retrieval_model = retrieval_model
 
-        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=2,
+        self.model = BiEncoderRetrieval(model_name=model_name, batch_size=batch_size, device=device, num_epochs=10,
                                         loss=self.loss, track_train=track_train, num_of_neg=1)
 
         self.pubs = retrieval_model.pubs
@@ -74,6 +74,6 @@ class BiEncoderRetrievalTrain:
 
 
 if __name__ == '__main__':
-    BiEncoderRetrievalTrain("paraphrase-TinyBERT-L6-v2", loss="MultipleNegativesRankingLoss", hard_neg=True,
+    BiEncoderRetrievalTrain("2021-09-13_20-57-39", loss="MultipleNegativesRankingLoss", hard_neg=True,
                             device="cuda:0",
-                            batch_size=32, track_train=False).train()
+                            batch_size=40, track_train=False).train()

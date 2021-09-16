@@ -1,7 +1,7 @@
 import json
 import os
 
-from .rerank_for_evaluation import BertRerankPrediction
+from .rerank_for_evaluation import BertRerankApplication
 from .retrieve_for_evaluation import Retrieve
 
 
@@ -19,7 +19,7 @@ def retrieval_output_prediction(k=5):
 
 def rerank_output_prediction():
     test_length = [10, 23, 30]
-    results_list = BertRerankPrediction("scibert_24h", k=60).rerank(test_length=test_length)
+    results_list = BertRerankApplication("scibert_24h", k=60).predict(test_length=test_length)
 
     def save_prediction(results, k):
         json_prediction = [{"pub_id": pub_id, "experts": experts} for pub_id, experts in results.items()]
