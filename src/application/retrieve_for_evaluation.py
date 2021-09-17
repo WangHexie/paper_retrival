@@ -150,7 +150,8 @@ class EmbeddingRetrieve:
                  transformation_kwargs: dict = None,
                  retrieval_kwargs: dict = None,
                  model_kwargs: dict = None,
-                 model_type="sentencebert"):
+                 model_type="sentencebert",
+                 prediction=False):
         """
 
         :param transformation_kwargs:
@@ -161,7 +162,10 @@ class EmbeddingRetrieve:
         self.model_type = model_type
         self.base_data = Dataset().read_base_dataset()
 
-        self.pubs, self.labels = Dataset().read_train_dataset()
+        if prediction:
+            self.pubs = Dataset().read_valid_dataset()
+        else:
+            self.pubs, self.labels = Dataset().read_train_dataset()
 
         self.transformation_kwargs = transformation_kwargs if transformation_kwargs is not None else {}
         self.retrieval_kwargs = retrieval_kwargs if retrieval_kwargs is not None else {}

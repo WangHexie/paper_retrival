@@ -60,21 +60,22 @@ class BertRerank:
 
 class BertRankSE:
     def __init__(self, batch_size=8, num_epochs=1, model_save_path=os.path.join(root_path, "models"), max_length=512,
-                 initial_load=True, model_name='allenai/scibert_scivocab_uncased'):
+                 initial_load=True, model_name='allenai/scibert_scivocab_uncased', device="cuda:1"):
         self.max_length = max_length
         self.model_save_path = model_save_path
         self.num_epochs = num_epochs
         self.batch_size = batch_size
+        self.device = device
         if initial_load:
             try:
-                self.model = CrossEncoder(os.path.join(self.model_save_path, model_name), num_labels=1, device="cuda:1",
+                self.model = CrossEncoder(os.path.join(self.model_save_path, model_name), num_labels=1, device=device,
                                           max_length=max_length)
             except:
-                self.model = CrossEncoder(model_name, num_labels=1, device="cuda:1", max_length=max_length)
+                self.model = CrossEncoder(model_name, num_labels=1, device=device, max_length=max_length)
             self.model.save(os.path.join(self.model_save_path, model_name))
 
     def load_model(self):
-        self.model = CrossEncoder(os.path.join(root_path, "models", "manual_save"), device="cuda:1",
+        self.model = CrossEncoder(os.path.join(root_path, "models", "manual_save"), device=self.device,
                                   max_length=self.max_length)
 
         return self
